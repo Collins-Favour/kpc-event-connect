@@ -6,6 +6,7 @@ import {
   generateSecret,
   hashSecret,
   requireMembership,
+  requirePlatformAdmin,
   slugify,
   writeAudit,
 } from "./tenant.server";
@@ -187,7 +188,8 @@ export const listMembers = createServerFn({ method: "GET" })
 
 const inviteSchema = spaceIdSchema.extend({
   email: z.string().trim().email("Enter a valid email"),
-  role: z.enum(["SPACE_ADMIN", "SPACE_SUPER_ADMIN"]),
+  // Space membership only ever creates regular admins; ownership is not transferable here.
+  role: z.literal("SPACE_ADMIN").default("SPACE_ADMIN"),
 });
 
 export const inviteMember = createServerFn({ method: "POST" })
@@ -253,7 +255,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     spaceIdSchema
-      .extend({ memberId: z.string().uuid(), role: z.enum(["SPACE_ADMIN", "SPACE_SUPER_ADMIN"]) })
+      .extend({ memberId: z.string().uuid(), role: z.literal("SPACE_ADMIN") })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -370,29 +372,10 @@ export const acceptInvitation = createServerFn({ method: "POST" })
 
 /* ------------------------------- platform -------------------------------- */
 
-/** Reads the caller's platform status from their own token, never from input. */
-async function requirePlatformAdmin(
-  supabase: { from: (table: "platform_admins") => never } | never,
-  userId: string,
-) {
-  const { data } = await (supabase as never as {
-    from: (t: string) => {
-      select: (c: string) => {
-        eq: (a: string, b: string) => { maybeSingle: () => Promise<{ data: unknown }> };
-      };
-    };
-  })
-    .from("platform_admins")
-    .select("user_id")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!data) throw new HttpError("Platform administrators only.", 403);
-}
-
 export const listAllSpaces = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await requirePlatformAdmin(context.supabase as never, context.userId);
+    await requirePlatformAdmin(context.supabase, context.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: spaces }, { count: registrations }, { count: users }] = await Promise.all([
@@ -413,7 +396,7 @@ export const listAllSpaces = createServerFn({ method: "GET" })
 export const getPlatformOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await requirePlatformAdmin(context.supabase as never, context.userId);
+    await requirePlatformAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const since = new Date(Date.now() - 29 * 24 * 60 * 60 * 1000).toISOString();
@@ -477,7 +460,7 @@ export const getSpaceDetailForPlatform = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => spaceIdSchema.parse(input))
   .handler(async ({ data, context }) => {
-    await requirePlatformAdmin(context.supabase as never, context.userId);
+    await requirePlatformAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [{ data: space }, { data: events }, { count: desks }, { count: registrations }, { data: members }] =
@@ -523,7 +506,7 @@ export const getSpaceDetailForPlatform = createServerFn({ method: "GET" })
 export const listPlatformAdmins = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await requirePlatformAdmin(context.supabase as never, context.userId);
+    await requirePlatformAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: admins } = await supabaseAdmin
       .from("platform_admins")
@@ -546,7 +529,7 @@ export const addPlatformAdmin = createServerFn({ method: "POST" })
     z.object({ email: z.string().trim().email("Enter a valid email").max(255) }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requirePlatformAdmin(context.supabase as never, context.userId);
+    await requirePlatformAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const email = data.email.toLowerCase();
@@ -578,7 +561,7 @@ export const removePlatformAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    await requirePlatformAdmin(context.supabase as never, context.userId);
+    await requirePlatformAdmin(context.supabase, context.userId);
     if (data.userId === context.userId) {
       throw new HttpError("You cannot remove your own platform access.", 403);
     }
@@ -605,7 +588,7 @@ export const setSpaceStatus = createServerFn({ method: "POST" })
     spaceIdSchema.extend({ status: z.enum(["ACTIVE", "SUSPENDED", "ARCHIVED"]) }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requirePlatformAdmin(context.supabase as never, context.userId);
+    await requirePlatformAdmin(context.supabase, context.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("spaces").update({ status: data.status }).eq("id", data.spaceId);
