@@ -63,4 +63,5 @@ So "if I'm from org X I can always reuse it": on the Templates page, add
 - Export libraries: `xlsx` for Excel, `jspdf` + `jspdf-autotable` for PDF; CSV generated in-app.
 
 - Template preset/copy functions added to `src/lib/events.functions.ts`, reusing existing field validation.
-- UI work in `s.$spaceId.attendees.tsx` (filter builder, segment chips, export button), `s.$spaceId.templates.tsx` (copy/preset), `s.$spaceId.reports.tsx` (filter-aware breakdowns), plus a shared `AttendeeFilters` component so attendees and reports share one filter model.
+- UI work in `s.$spaceId.attendees.tsx` (filter builder, segment chips, export menu), `s.$spaceId.templates.tsx` (copy/preset), `s.$spaceId.reports.tsx` (per-field report builder, cross-tabs, share + export), a new `s.$spaceId.support.tsx`, a Support section on `platform.tsx`, a help button on the registration desk route, plus a shared `AttendeeFilters` component and an `export` util shared by attendees and reports.
+
