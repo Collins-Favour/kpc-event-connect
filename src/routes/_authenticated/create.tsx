@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Building2, User, Users } from "lucide-react";
 import { toast } from "sonner";
+import { PageNav } from "@/components/page-nav";
 
 export const Route = createFileRoute("/_authenticated/create")({
   head: () => ({
@@ -60,9 +61,7 @@ function CreateSpacePage() {
   return (
     <main className="min-h-screen bg-background px-6 py-12">
       <div className="mx-auto max-w-lg">
-        <Link to="/spaces" className="text-sm text-muted-foreground underline underline-offset-4">
-          Back to your spaces
-        </Link>
+        <PageNav className="-ml-2" />
         <h1 className="mt-6 text-3xl">Create a space</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           You become its super admin. You can invite others afterwards.
