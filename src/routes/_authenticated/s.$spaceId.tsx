@@ -123,10 +123,41 @@ function SpaceLayout() {
       </aside>
 
       <main className="min-w-0 flex-1">
+        <div className="sticky top-0 z-20 border-b bg-background/85 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 lg:px-10">
+            <PageNav />
+            <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
+              <ol className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                <li className="shrink-0">
+                  <Link to="/spaces" className="hover:text-foreground">
+                    Spaces
+                  </Link>
+                </li>
+                <li aria-hidden className="shrink-0 opacity-50">
+                  /
+                </li>
+                <li className="min-w-0 truncate">
+                  <Link to="/s/$spaceId" params={{ spaceId }} className="hover:text-foreground">
+                    {space.data?.space.name ?? "Space"}
+                  </Link>
+                </li>
+                {sectionLabel && (
+                  <>
+                    <li aria-hidden className="shrink-0 opacity-50">
+                      /
+                    </li>
+                    <li className="shrink-0 font-medium text-foreground">{sectionLabel}</li>
+                  </>
+                )}
+              </ol>
+            </nav>
+          </div>
+        </div>
         <div className="mx-auto max-w-6xl px-5 py-8 lg:px-10">
           <Outlet />
         </div>
       </main>
+
     </div>
   );
 }
