@@ -1,9 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getReportData, getSpaceOverview } from "@/lib/reports.functions";
-import { listEvents } from "@/lib/events.functions";
+import { listSpaceFields } from "@/lib/segments.functions";
+import { decodeFilterSet, emptyFilterSet, type FilterSet } from "@/lib/filters";
+import { AttendeeFilters } from "@/components/attendee-filters";
+import { ExportMenu } from "@/components/export-menu";
+import {
+  copyTable,
+  exportCsv,
+  exportPdf,
+  exportXlsx,
+  printRows,
+  type ExportRow,
+} from "@/lib/export-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Download } from "lucide-react";
+import { Clipboard, FileSpreadsheet, FileText, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/reports")({
@@ -23,76 +34,123 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/reports")({
       { title: "Reports — Leepek" },
       {
         name: "description",
-        content: "Attendance, desk, time and demographic reports with CSV export.",
+        content: "Build a report on any field, cross-tabulate it and export to CSV, Excel or PDF.",
       },
       { property: "og:title", content: "Reports — Leepek" },
       {
         property: "og:description",
-        content: "Attendance, desk and demographic reports with export.",
+        content: "Reports on every field, shareable and exportable.",
       },
     ],
   }),
   component: ReportsPage,
 });
 
-function toCsv(rows: Record<string, string>[]): string {
-  if (rows.length === 0) return "";
-  const headers = [...new Set(rows.flatMap((row) => Object.keys(row)))];
-  const escape = (value: string) => `"${(value ?? "").replace(/"/g, '""')}"`;
-  return [
-    headers.join(","),
-    ...rows.map((row) => headers.map((header) => escape(row[header] ?? "")).join(",")),
-  ].join("\n");
+type Row = ExportRow & { location: string | null };
+
+/** Reads any field off a registration row, built-in or configurable. */
+function readField(row: Row, key: string): string {
+  if (key === "location") return row.location ?? "";
+  if (key === "event") return row.event?.name ?? "";
+  if (key === "desk") return row.desk?.name ?? "";
+  const match = (row.values ?? []).find((value) => value.field_key === key);
+  return match?.value ?? "";
 }
 
 function ReportsPage() {
   const { spaceId } = Route.useParams();
   const reportFn = useServerFn(getReportData);
   const overviewFn = useServerFn(getSpaceOverview);
-  const eventsFn = useServerFn(listEvents);
+  const fieldsFn = useServerFn(listSpaceFields);
 
-  const events = useQuery({
-    queryKey: ["events", spaceId],
-    queryFn: () => eventsFn({ data: { spaceId } }),
+  const [filters, setFilters] = useState<FilterSet>(() => {
+    if (typeof window === "undefined") return emptyFilterSet();
+    const params = new URLSearchParams(window.location.search);
+    return decodeFilterSet(params.get("view")) ?? emptyFilterSet();
   });
-  const [eventId, setEventId] = useState("all");
-  const scope = eventId === "all" ? undefined : eventId;
+  const [groupBy, setGroupBy] = useState("none");
+  const [splitBy, setSplitBy] = useState("none");
 
   const report = useQuery({
-    queryKey: ["report", spaceId, eventId],
-    queryFn: () => reportFn({ data: { spaceId, eventId: scope } }),
+    queryKey: ["report", spaceId, filters],
+    queryFn: () => reportFn({ data: { spaceId, ...filters } }),
   });
   const overview = useQuery({
-    queryKey: ["overview", spaceId, eventId],
-    queryFn: () => overviewFn({ data: { spaceId, eventId: scope } }),
+    queryKey: ["overview", spaceId, filters.eventId],
+    queryFn: () => overviewFn({ data: { spaceId, eventId: filters.eventId } }),
+  });
+  const fields = useQuery({
+    queryKey: ["space-fields", spaceId],
+    queryFn: () => fieldsFn({ data: { spaceId } }),
   });
 
-  function download() {
-    const rows = (report.data?.rows ?? []).map((row) => {
-      const base: Record<string, string> = {
-        registration_number: row.registration_number,
-        full_name: row.full_name,
-        phone: row.phone ?? "",
-        email: row.email ?? "",
-        location: row.location ?? "",
-        event: row.event?.name ?? "",
-        desk: row.desk?.name ?? "",
-        registered_at: row.registered_at,
-      };
-      for (const value of row.values ?? []) base[value.field_key] = value.value ?? "";
-      return base;
+  const fieldOptions = useMemo(() => {
+    const custom = (fields.data ?? []).map((f) => ({ key: f.key, label: f.label }));
+    return [
+      { key: "event", label: "Event" },
+      { key: "desk", label: "Desk" },
+      ...custom.filter((f) => f.key !== "full_name" && f.key !== "phone" && f.key !== "email"),
+    ];
+  }, [fields.data]);
+
+  const labelFor = (key: string) => fieldOptions.find((f) => f.key === key)?.label ?? key;
+
+  // Group / cross-tab table built from the filtered rows.
+  const table = useMemo(() => {
+    const rows = (report.data?.rows ?? []) as unknown as Row[];
+    if (groupBy === "none") return null;
+    const columns = new Set<string>();
+    const grouped = new Map<string, Map<string, number>>();
+
+    for (const row of rows) {
+      const group = readField(row, groupBy) || "—";
+      const column = splitBy === "none" ? "Count" : readField(row, splitBy) || "—";
+      columns.add(column);
+      const bucket = grouped.get(group) ?? new Map<string, number>();
+      bucket.set(column, (bucket.get(column) ?? 0) + 1);
+      grouped.set(group, bucket);
+    }
+
+    const columnList = [...columns].sort();
+    const body = [...grouped.entries()]
+      .map(([group, counts]) => {
+        const totals = columnList.reduce((sum, column) => sum + (counts.get(column) ?? 0), 0);
+        return { group, counts, total: totals };
+      })
+      .sort((a, b) => b.total - a.total);
+    const grandTotal = body.reduce((sum, entry) => sum + entry.total, 0);
+    return { columnList, body, grandTotal };
+  }, [report.data, groupBy, splitBy]);
+
+  function tableRecords(): Record<string, string>[] {
+    if (!table) return [];
+    return table.body.map((entry) => {
+      const record: Record<string, string> = { [labelFor(groupBy)]: entry.group };
+      for (const column of table.columnList) {
+        record[column] = String(entry.counts.get(column) ?? 0);
+      }
+      record["Total"] = String(entry.total);
+      record["Share"] = `${((entry.total / Math.max(1, table.grandTotal)) * 100).toFixed(1)}%`;
+      return record;
     });
-    if (rows.length === 0) {
-      toast.error("Nothing to export yet.");
+  }
+
+  async function exportTable(format: "csv" | "xlsx" | "pdf" | "print" | "copy") {
+    const records = tableRecords();
+    if (records.length === 0) {
+      toast.error("Choose a field to report on first.");
       return;
     }
-    const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `registrations-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const title = `${labelFor(groupBy)} report`;
+    const name = `${groupBy}-report-${new Date().toISOString().slice(0, 10)}`;
+    if (format === "csv") exportCsv(records, name);
+    else if (format === "xlsx") await exportXlsx(records, name);
+    else if (format === "pdf") await exportPdf(records, name, title);
+    else if (format === "print") printRows(records, title);
+    else {
+      await copyTable(records);
+      toast.success("Report copied to your clipboard.");
+    }
   }
 
   const maxHour = Math.max(1, ...(overview.data?.hourly ?? []).map((h) => h.count));
@@ -103,29 +161,118 @@ function ReportsPage() {
         <div>
           <h1 className="text-2xl">Reports</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Attendance, desk activity, time-of-day and your configured fields.
+            Report on any field, cross-tabulate it, then share or export.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Select value={eventId} onValueChange={setEventId}>
-            <SelectTrigger className="w-52">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All events</SelectItem>
-              {(events.data ?? []).map((event) => (
-                <SelectItem key={event.id} value={event.id}>
-                  {event.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={download}>
-            <Download className="size-4" />
-            Export CSV
-          </Button>
-        </div>
+        <ExportMenu spaceId={spaceId} filters={filters} title="Report records" />
       </header>
+
+      <AttendeeFilters spaceId={spaceId} value={filters} onChange={setFilters} />
+
+      <Card>
+        <CardContent className="space-y-4 py-6">
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                Report on
+              </p>
+              <Select value={groupBy} onValueChange={setGroupBy}>
+                <SelectTrigger className="w-52">
+                  <SelectValue placeholder="Choose a field" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Choose a field…</SelectItem>
+                  {fieldOptions.map((field) => (
+                    <SelectItem key={field.key} value={field.key}>
+                      {field.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <p className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">
+                Broken down by
+              </p>
+              <Select value={splitBy} onValueChange={setSplitBy}>
+                <SelectTrigger className="w-52">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Just totals</SelectItem>
+                  {fieldOptions
+                    .filter((field) => field.key !== groupBy)
+                    .map((field) => (
+                      <SelectItem key={field.key} value={field.key}>
+                        {field.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => exportTable("csv")}>
+                <FileText className="size-4" /> CSV
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => exportTable("xlsx")}>
+                <FileSpreadsheet className="size-4" /> Excel
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => exportTable("pdf")}>
+                <FileText className="size-4" /> PDF
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => exportTable("print")}>
+                <Printer className="size-4" /> Print
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => exportTable("copy")}>
+                <Clipboard className="size-4" /> Copy
+              </Button>
+            </div>
+          </div>
+
+          {report.isLoading ? (
+            <Skeleton className="h-40 w-full" />
+          ) : table ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+                    <th className="py-2 pr-4">{labelFor(groupBy)}</th>
+                    {table.columnList.map((column) => (
+                      <th key={column} className="py-2 pr-4 text-right">
+                        {column}
+                      </th>
+                    ))}
+                    <th className="py-2 pr-4 text-right">Total</th>
+                    <th className="py-2 text-right">Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {table.body.map((entry) => (
+                    <tr key={entry.group} className="border-b border-border/60">
+                      <td className="py-2 pr-4 font-medium">{entry.group}</td>
+                      {table.columnList.map((column) => (
+                        <td key={column} className="py-2 pr-4 text-right tabular-nums">
+                          {entry.counts.get(column) ?? 0}
+                        </td>
+                      ))}
+                      <td className="py-2 pr-4 text-right font-semibold tabular-nums">
+                        {entry.total}
+                      </td>
+                      <td className="py-2 text-right tabular-nums text-muted-foreground">
+                        {((entry.total / Math.max(1, table.grandTotal)) * 100).toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              Pick a field above to generate a report on it.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -171,7 +318,7 @@ function ReportsPage() {
                 {breakdown.field}
               </h2>
               <ul className="mt-3 space-y-2">
-                {breakdown.counts.map((entry) => (
+                {breakdown.counts.slice(0, 8).map((entry) => (
                   <li key={entry.label} className="flex items-center justify-between text-sm">
                     <span className="truncate">{entry.label}</span>
                     <span className="font-medium tabular-nums">{entry.count}</span>
@@ -184,7 +331,7 @@ function ReportsPage() {
         {report.data?.breakdowns.length === 0 && (
           <Card className="sm:col-span-2 lg:col-span-3">
             <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              Add custom fields to your template to see demographic breakdowns here.
+              No records match these filters yet.
             </CardContent>
           </Card>
         )}

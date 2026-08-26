@@ -19,6 +19,7 @@ import {
   CalendarDays,
   ChevronsUpDown,
   LayoutDashboard,
+  LifeBuoy,
   ListChecks,
   Monitor,
   Settings,
@@ -38,6 +39,7 @@ const nav = [
   { to: "/s/$spaceId/templates", label: "Templates", icon: ListChecks },
   { to: "/s/$spaceId/members", label: "Members", icon: Users },
   { to: "/s/$spaceId/reports", label: "Reports", icon: BarChart3 },
+  { to: "/s/$spaceId/support", label: "Support", icon: LifeBuoy },
   { to: "/s/$spaceId/settings", label: "Settings", icon: Settings },
 ] as const;
 

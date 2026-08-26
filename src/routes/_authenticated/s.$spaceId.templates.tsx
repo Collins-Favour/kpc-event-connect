@@ -9,6 +9,7 @@ import {
   reorderTemplateFields,
   upsertTemplateField,
 } from "@/lib/events.functions";
+import { TemplatePresets } from "@/components/template-presets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -219,6 +220,16 @@ function TemplatesPage() {
           </Button>
         </div>
       </header>
+
+      {template.data && activeEvent && (
+        <TemplatePresets
+          spaceId={spaceId}
+          templateId={template.data.id}
+          eventId={activeEvent}
+          events={events.data ?? []}
+          onApplied={invalidate}
+        />
+      )}
 
       {template.data && (
         <div className="flex flex-wrap items-center gap-2">

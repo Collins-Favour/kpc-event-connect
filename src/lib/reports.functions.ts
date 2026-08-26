@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { requireMembership } from "./tenant.server";
+import { filterSetSchema, rangeToWindow } from "./filters";
+import { applyBuiltinFilters, resolveCustomFilterIds } from "./filters.server";
+
 
 const spaceIdSchema = z.object({ spaceId: z.string().uuid() });
 
@@ -112,15 +115,13 @@ export const getSpaceOverview = createServerFn({ method: "GET" })
     };
   });
 
-const listSchema = spaceIdSchema.extend({
-  eventId: z.string().uuid().optional(),
-  deskId: z.string().uuid().optional(),
-  search: z.string().trim().max(80).optional(),
-  from: z.string().optional(),
-  to: z.string().optional(),
+const listSchema = spaceIdSchema.extend(filterSetSchema.shape).extend({
   page: z.number().int().min(1).default(1),
   pageSize: z.number().int().min(10).max(100).default(25),
 });
+
+const SELECT_COLUMNS =
+  "id, registration_number, full_name, phone, email, location, registered_at, event:events(name), desk:registration_desks(name, code), values:registration_field_values(field_key, value)";
 
 export const listRegistrations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -128,28 +129,23 @@ export const listRegistrations = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await requireMembership(context.supabase, context.userId, data.spaceId);
 
+    const window = rangeToWindow(data.range);
+    const ids = await resolveCustomFilterIds(context.supabase, data.spaceId, data.filters);
+
     let query = context.supabase
       .from("registrations")
-      .select(
-        "id, registration_number, full_name, phone, email, location, registered_at, event:events(name), desk:registration_desks(name, code), values:registration_field_values(field_key, value)",
-        { count: "exact" },
-      )
+      .select(SELECT_COLUMNS, { count: "exact" })
       .eq("space_id", data.spaceId);
 
-    if (data.eventId) query = query.eq("event_id", data.eventId);
-    if (data.deskId) query = query.eq("desk_id", data.deskId);
-    if (data.from) query = query.gte("registered_at", new Date(data.from).toISOString());
-    if (data.to) {
-      const to = new Date(data.to);
-      to.setUTCHours(23, 59, 59, 999);
-      query = query.lte("registered_at", to.toISOString());
-    }
-    if (data.search) {
-      const term = data.search.replace(/[%,()]/g, " ");
-      query = query.or(
-        `full_name.ilike.%${term}%,phone.ilike.%${term}%,email.ilike.%${term}%,registration_number.ilike.%${term}%,location.ilike.%${term}%`,
-      );
-    }
+    query = applyBuiltinFilters(query, {
+      eventId: data.eventId,
+      deskId: data.deskId,
+      from: data.from || window.from,
+      to: data.to || window.to,
+      search: data.search,
+      filters: data.filters,
+      ids,
+    });
 
     const from = (data.page - 1) * data.pageSize;
     const {
@@ -164,41 +160,93 @@ export const listRegistrations = createServerFn({ method: "POST" })
     return { rows: rows ?? [], total: count ?? 0, page: data.page, pageSize: data.pageSize };
   });
 
-export const getReportData = createServerFn({ method: "POST" })
+/** Full filtered result set for CSV / Excel / PDF export. */
+export const exportRegistrations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    spaceIdSchema.extend({ eventId: z.string().uuid().optional() }).parse(input),
-  )
+  .inputValidator((input: unknown) => spaceIdSchema.extend(filterSetSchema.shape).parse(input))
   .handler(async ({ data, context }) => {
     await requireMembership(context.supabase, context.userId, data.spaceId);
 
+    const window = rangeToWindow(data.range);
+    const ids = await resolveCustomFilterIds(context.supabase, data.spaceId, data.filters);
+
     let query = context.supabase
       .from("registrations")
-      .select(
-        "registration_number, full_name, phone, email, location, registered_at, event:events(name), desk:registration_desks(name, code), values:registration_field_values(field_key, value)",
-      )
-      .eq("space_id", data.spaceId)
-      .order("registered_at", { ascending: false })
-      .limit(5000);
-    if (data.eventId) query = query.eq("event_id", data.eventId);
-    const { data: rows } = await query;
+      .select(SELECT_COLUMNS, { count: "exact" })
+      .eq("space_id", data.spaceId);
 
-    // Demographic breakdowns come from whatever configurable fields exist.
+    query = applyBuiltinFilters(query, {
+      eventId: data.eventId,
+      deskId: data.deskId,
+      from: data.from || window.from,
+      to: data.to || window.to,
+      search: data.search,
+      filters: data.filters,
+      ids,
+    });
+
+    const {
+      data: rows,
+      count,
+      error,
+    } = await query.order("registered_at", { ascending: false }).range(0, 19999);
+    if (error) throw new Error("Could not export these registrations.");
+
+    return { rows: rows ?? [], total: count ?? 0, truncated: (count ?? 0) > 20000 };
+  });
+
+export const getReportData = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => spaceIdSchema.extend(filterSetSchema.shape).parse(input))
+  .handler(async ({ data, context }) => {
+    await requireMembership(context.supabase, context.userId, data.spaceId);
+
+    const window = rangeToWindow(data.range);
+    const ids = await resolveCustomFilterIds(context.supabase, data.spaceId, data.filters);
+
+    let query = context.supabase
+      .from("registrations")
+      .select(SELECT_COLUMNS)
+      .eq("space_id", data.spaceId);
+
+    query = applyBuiltinFilters(query, {
+      eventId: data.eventId,
+      deskId: data.deskId,
+      from: data.from || window.from,
+      to: data.to || window.to,
+      search: data.search,
+      filters: data.filters,
+      ids,
+    });
+
+    const { data: rows } = await query.order("registered_at", { ascending: false }).limit(20000);
+
+    // Breakdowns for every field we know about: built-ins plus configurable fields.
     const breakdowns = new Map<string, Map<string, number>>();
+    const bump = (field: string, value: string) => {
+      const bucket = breakdowns.get(field) ?? new Map<string, number>();
+      bucket.set(value, (bucket.get(value) ?? 0) + 1);
+      breakdowns.set(field, bucket);
+    };
+
     for (const row of rows ?? []) {
+      if (row.location) bump("location", row.location);
+      if (row.event?.name) bump("event", row.event.name);
+      if (row.desk?.name) bump("desk", row.desk.name);
       for (const value of row.values ?? []) {
-        if (!value.value) continue;
-        const bucket = breakdowns.get(value.field_key) ?? new Map<string, number>();
-        bucket.set(value.value, (bucket.get(value.value) ?? 0) + 1);
-        breakdowns.set(value.field_key, bucket);
+        if (value.value) bump(value.field_key, value.value);
       }
     }
 
     return {
       rows: rows ?? [],
+      total: rows?.length ?? 0,
       breakdowns: [...breakdowns.entries()].map(([field, counts]) => ({
         field,
-        counts: [...counts.entries()].map(([label, count]) => ({ label, count })),
+        counts: [...counts.entries()]
+          .map(([label, count]) => ({ label, count }))
+          .sort((a, b) => b.count - a.count),
       })),
     };
   });
+

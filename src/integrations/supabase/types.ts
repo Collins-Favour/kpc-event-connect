@@ -594,6 +594,44 @@ export type Database = {
           },
         ]
       }
+      saved_segments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          definition: Json
+          id: string
+          name: string
+          space_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          definition?: Json
+          id?: string
+          name: string
+          space_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          definition?: Json
+          id?: string
+          name?: string
+          space_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_segments_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_logs: {
         Row: {
           created_at: string
@@ -796,6 +834,156 @@ export type Database = {
         }
         Relationships: []
       }
+      support_messages: {
+        Row: {
+          author_id: string | null
+          author_label: string | null
+          body: string
+          created_at: string
+          id: string
+          space_id: string
+          ticket_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_label?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          space_id: string
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string | null
+          author_label?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          space_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "spaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          created_by_label: string | null
+          desk_id: string | null
+          event_id: string | null
+          id: string
+          scope: Database["public"]["Enums"]["ticket_scope"]
+          space_id: string
+          status: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          created_by_label?: string | null
+          desk_id?: string | null
+          event_id?: string | null
+          id?: string
+          scope?: Database["public"]["Enums"]["ticket_scope"]
+          space_id: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          created_by_label?: string | null
+          desk_id?: string | null
+          event_id?: string | null
+          id?: string
+          scope?: Database["public"]["Enums"]["ticket_scope"]
+          space_id?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_desk_id_fkey"
+            columns: ["desk_id"]
+            isOneToOne: false
+            referencedRelation: "registration_desks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_presets: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          fields: Json
+          id: string
+          name: string
+          space_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          fields?: Json
+          id?: string
+          name: string
+          space_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          fields?: Json
+          id?: string
+          name?: string
+          space_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_presets_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -831,6 +1019,8 @@ export type Database = {
       space_role: "SPACE_ADMIN" | "SPACE_SUPER_ADMIN"
       space_status: "ACTIVE" | "SUSPENDED" | "ARCHIVED"
       space_type: "INDIVIDUAL" | "ORGANIZATION" | "TEAM"
+      ticket_scope: "SPACE" | "PLATFORM"
+      ticket_status: "OPEN" | "IN_PROGRESS" | "RESOLVED"
       token_status: "ACTIVE" | "REVOKED" | "EXPIRED"
     }
     CompositeTypes: {
@@ -979,6 +1169,8 @@ export const Constants = {
       space_role: ["SPACE_ADMIN", "SPACE_SUPER_ADMIN"],
       space_status: ["ACTIVE", "SUSPENDED", "ARCHIVED"],
       space_type: ["INDIVIDUAL", "ORGANIZATION", "TEAM"],
+      ticket_scope: ["SPACE", "PLATFORM"],
+      ticket_status: ["OPEN", "IN_PROGRESS", "RESOLVED"],
       token_status: ["ACTIVE", "REVOKED", "EXPIRED"],
     },
   },

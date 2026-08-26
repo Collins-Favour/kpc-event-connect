@@ -26,6 +26,7 @@ import { Route as AuthenticatedSSpaceIdEventsRouteImport } from './routes/_authe
 import { Route as AuthenticatedSSpaceIdMembersRouteImport } from './routes/_authenticated/s.$spaceId.members'
 import { Route as AuthenticatedSSpaceIdReportsRouteImport } from './routes/_authenticated/s.$spaceId.reports'
 import { Route as AuthenticatedSSpaceIdSettingsRouteImport } from './routes/_authenticated/s.$spaceId.settings'
+import { Route as AuthenticatedSSpaceIdSupportRouteImport } from './routes/_authenticated/s.$spaceId.support'
 import { Route as AuthenticatedSSpaceIdTemplatesRouteImport } from './routes/_authenticated/s.$spaceId.templates'
 
 const IndexRoute = IndexRouteImport.update({
@@ -119,6 +120,12 @@ const AuthenticatedSSpaceIdSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedSSpaceIdRoute,
   } as any)
+const AuthenticatedSSpaceIdSupportRoute =
+  AuthenticatedSSpaceIdSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
 const AuthenticatedSSpaceIdTemplatesRoute =
   AuthenticatedSSpaceIdTemplatesRouteImport.update({
     id: '/templates',
@@ -142,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/s/$spaceId/members': typeof AuthenticatedSSpaceIdMembersRoute
   '/s/$spaceId/reports': typeof AuthenticatedSSpaceIdReportsRoute
   '/s/$spaceId/settings': typeof AuthenticatedSSpaceIdSettingsRoute
+  '/s/$spaceId/support': typeof AuthenticatedSSpaceIdSupportRoute
   '/s/$spaceId/templates': typeof AuthenticatedSSpaceIdTemplatesRoute
   '/s/$spaceId/': typeof AuthenticatedSSpaceIdIndexRoute
 }
@@ -160,6 +168,7 @@ export interface FileRoutesByTo {
   '/s/$spaceId/members': typeof AuthenticatedSSpaceIdMembersRoute
   '/s/$spaceId/reports': typeof AuthenticatedSSpaceIdReportsRoute
   '/s/$spaceId/settings': typeof AuthenticatedSSpaceIdSettingsRoute
+  '/s/$spaceId/support': typeof AuthenticatedSSpaceIdSupportRoute
   '/s/$spaceId/templates': typeof AuthenticatedSSpaceIdTemplatesRoute
   '/s/$spaceId': typeof AuthenticatedSSpaceIdIndexRoute
 }
@@ -181,6 +190,7 @@ export interface FileRoutesById {
   '/_authenticated/s/$spaceId/members': typeof AuthenticatedSSpaceIdMembersRoute
   '/_authenticated/s/$spaceId/reports': typeof AuthenticatedSSpaceIdReportsRoute
   '/_authenticated/s/$spaceId/settings': typeof AuthenticatedSSpaceIdSettingsRoute
+  '/_authenticated/s/$spaceId/support': typeof AuthenticatedSSpaceIdSupportRoute
   '/_authenticated/s/$spaceId/templates': typeof AuthenticatedSSpaceIdTemplatesRoute
   '/_authenticated/s/$spaceId/': typeof AuthenticatedSSpaceIdIndexRoute
 }
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/s/$spaceId/members'
     | '/s/$spaceId/reports'
     | '/s/$spaceId/settings'
+    | '/s/$spaceId/support'
     | '/s/$spaceId/templates'
     | '/s/$spaceId/'
   fileRoutesByTo: FileRoutesByTo
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/s/$spaceId/members'
     | '/s/$spaceId/reports'
     | '/s/$spaceId/settings'
+    | '/s/$spaceId/support'
     | '/s/$spaceId/templates'
     | '/s/$spaceId'
   id:
@@ -240,6 +252,7 @@ export interface FileRouteTypes {
     | '/_authenticated/s/$spaceId/members'
     | '/_authenticated/s/$spaceId/reports'
     | '/_authenticated/s/$spaceId/settings'
+    | '/_authenticated/s/$spaceId/support'
     | '/_authenticated/s/$spaceId/templates'
     | '/_authenticated/s/$spaceId/'
   fileRoutesById: FileRoutesById
@@ -374,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSSpaceIdSettingsRouteImport
       parentRoute: typeof AuthenticatedSSpaceIdRoute
     }
+    '/_authenticated/s/$spaceId/support': {
+      id: '/_authenticated/s/$spaceId/support'
+      path: '/support'
+      fullPath: '/s/$spaceId/support'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdSupportRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
+    }
     '/_authenticated/s/$spaceId/templates': {
       id: '/_authenticated/s/$spaceId/templates'
       path: '/templates'
@@ -391,6 +411,7 @@ interface AuthenticatedSSpaceIdRouteChildren {
   AuthenticatedSSpaceIdMembersRoute: typeof AuthenticatedSSpaceIdMembersRoute
   AuthenticatedSSpaceIdReportsRoute: typeof AuthenticatedSSpaceIdReportsRoute
   AuthenticatedSSpaceIdSettingsRoute: typeof AuthenticatedSSpaceIdSettingsRoute
+  AuthenticatedSSpaceIdSupportRoute: typeof AuthenticatedSSpaceIdSupportRoute
   AuthenticatedSSpaceIdTemplatesRoute: typeof AuthenticatedSSpaceIdTemplatesRoute
   AuthenticatedSSpaceIdIndexRoute: typeof AuthenticatedSSpaceIdIndexRoute
 }
@@ -402,6 +423,7 @@ const AuthenticatedSSpaceIdRouteChildren: AuthenticatedSSpaceIdRouteChildren = {
   AuthenticatedSSpaceIdMembersRoute: AuthenticatedSSpaceIdMembersRoute,
   AuthenticatedSSpaceIdReportsRoute: AuthenticatedSSpaceIdReportsRoute,
   AuthenticatedSSpaceIdSettingsRoute: AuthenticatedSSpaceIdSettingsRoute,
+  AuthenticatedSSpaceIdSupportRoute: AuthenticatedSSpaceIdSupportRoute,
   AuthenticatedSSpaceIdTemplatesRoute: AuthenticatedSSpaceIdTemplatesRoute,
   AuthenticatedSSpaceIdIndexRoute: AuthenticatedSSpaceIdIndexRoute,
 }

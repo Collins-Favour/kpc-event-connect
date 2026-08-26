@@ -10,6 +10,7 @@ import {
   removePlatformAdmin,
   setSpaceStatus,
 } from "@/lib/spaces.functions";
+import { PlatformSupport } from "@/components/platform-support";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -358,6 +359,8 @@ function PlatformPage() {
           </Card>
         </div>
       </section>
+
+      <PlatformSupport />
 
       <Dialog open={Boolean(openSpace)} onOpenChange={() => setOpenSpace(null)}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
