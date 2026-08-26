@@ -220,6 +220,16 @@ function TemplatesPage() {
         </div>
       </header>
 
+      {template.data && activeEvent && (
+        <TemplatePresets
+          spaceId={spaceId}
+          templateId={template.data.id}
+          eventId={activeEvent}
+          events={events.data ?? []}
+          onApplied={invalidate}
+        />
+      )}
+
       {template.data && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">Quick add:</span>
