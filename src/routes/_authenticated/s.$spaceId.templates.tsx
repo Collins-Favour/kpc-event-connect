@@ -217,6 +217,36 @@ function TemplatesPage() {
         </div>
       </header>
 
+      {template.data && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground">Quick add:</span>
+          {PRESETS.map((preset) => (
+            <Button
+              key={preset.name}
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setEditing(undefined);
+                setForm({
+                  label: preset.label,
+                  field_key: preset.field_key,
+                  field_type: preset.field_type,
+                  required: false,
+                  help_text: "",
+                  optionsText: preset.optionsText,
+                  active: true,
+                });
+                setOpen(true);
+              }}
+            >
+              <Plus className="size-3.5" />
+              {preset.name}
+            </Button>
+          ))}
+        </div>
+      )}
+
+
       {!activeEvent && (
         <Card>
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
