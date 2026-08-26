@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <main className="relative min-h-screen bg-background px-6 py-10 lg:py-16">
+    <main className="relative min-h-screen px-6 py-10 lg:py-16">
       <AmbientBackground />
       <div className="mx-auto w-full max-w-6xl">
         <nav className="animate-fade flex items-center justify-between">

@@ -85,7 +85,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-background px-6 py-12">
+    <main className="relative flex min-h-screen items-center justify-center px-6 py-12">
       <AmbientBackground />
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
