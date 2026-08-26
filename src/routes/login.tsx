@@ -92,9 +92,7 @@ function LoginPage() {
           <Link to="/" className="text-sm font-semibold tracking-tight">
             Leepek
           </Link>
-          <h1 className="mt-6 text-2xl">
-            {mode === "signin" ? "Sign in" : "Create your account"}
-          </h1>
+          <h1 className="mt-6 text-2xl">{mode === "signin" ? "Sign in" : "Create your account"}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Registration staff don&apos;t need an account —{" "}
             <Link to="/join" className="underline underline-offset-4">

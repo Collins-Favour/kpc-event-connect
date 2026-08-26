@@ -21,7 +21,9 @@ export const listEvents = createServerFn({ method: "GET" })
     await requireMembership(context.supabase, context.userId, data.spaceId);
     const { data: events } = await context.supabase
       .from("events")
-      .select("id, name, description, start_date, end_date, venue, status, registration_prefix, created_at")
+      .select(
+        "id, name, description, start_date, end_date, venue, status, registration_prefix, created_at",
+      )
       .eq("space_id", data.spaceId)
       .order("created_at", { ascending: false });
     return events ?? [];
@@ -155,6 +157,7 @@ const fieldSchema = spaceIdSchema.extend({
     "MULTISELECT",
     "CHECKBOX",
     "RADIO",
+    "BOOLEAN",
   ]),
   required: z.boolean().default(false),
   help_text: z.string().trim().max(160).optional().or(z.literal("")),
@@ -174,6 +177,9 @@ export const upsertTemplateField = createServerFn({ method: "POST" })
       throw new HttpError("This field type needs at least one option.", 400);
     }
 
+    // Yes/No fields always store the same two answers, whatever was sent.
+    const options = data.field_type === "BOOLEAN" ? ["Yes", "No"] : data.options;
+
     const payload = {
       space_id: data.spaceId,
       template_id: data.templateId,
@@ -182,7 +188,7 @@ export const upsertTemplateField = createServerFn({ method: "POST" })
       field_type: data.field_type,
       required: data.required,
       help_text: data.help_text || null,
-      options: data.options as unknown as never,
+      options: options as unknown as never,
       active: data.active,
     };
 
@@ -196,7 +202,9 @@ export const upsertTemplateField = createServerFn({ method: "POST" })
       if (!existing) throw new HttpError("Field not found.", 404);
       const { error } = await supabaseAdmin
         .from("registration_template_fields")
-        .update(existing.is_primary ? { label: payload.label, required: payload.required } : payload)
+        .update(
+          existing.is_primary ? { label: payload.label, required: payload.required } : payload,
+        )
         .eq("id", data.id)
         .eq("space_id", data.spaceId);
       if (error) throw new HttpError("Could not save the field.", 500);

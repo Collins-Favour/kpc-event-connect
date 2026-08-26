@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getSpace, listMySpaces } from "@/lib/spaces.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { PageNav } from "@/components/page-nav";
+
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -43,6 +45,12 @@ function SpaceLayout() {
   const { spaceId } = Route.useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const sectionLabel = nav.find(
+    (item) =>
+      !("exact" in item && item.exact) &&
+      location.pathname.startsWith(item.to.replace("$spaceId", spaceId)),
+  )?.label;
+
   const spaceFn = useServerFn(getSpace);
   const listFn = useServerFn(listMySpaces);
 
@@ -99,9 +107,10 @@ function SpaceLayout() {
           <nav className="mt-4 flex gap-1 overflow-x-auto lg:mt-6 lg:flex-col lg:overflow-visible">
             {nav.map((item) => {
               const href = item.to.replace("$spaceId", spaceId);
-              const active = "exact" in item && item.exact
-                ? location.pathname === href || location.pathname === `${href}/`
-                : location.pathname.startsWith(href);
+              const active =
+                "exact" in item && item.exact
+                  ? location.pathname === href || location.pathname === `${href}/`
+                  : location.pathname.startsWith(href);
               return (
                 <Link
                   key={item.to}
@@ -123,6 +132,36 @@ function SpaceLayout() {
       </aside>
 
       <main className="min-w-0 flex-1">
+        <div className="sticky top-0 z-20 border-b bg-background/85 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 lg:px-10">
+            <PageNav />
+            <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
+              <ol className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                <li className="shrink-0">
+                  <Link to="/spaces" className="hover:text-foreground">
+                    Spaces
+                  </Link>
+                </li>
+                <li aria-hidden className="shrink-0 opacity-50">
+                  /
+                </li>
+                <li className="min-w-0 truncate">
+                  <Link to="/s/$spaceId" params={{ spaceId }} className="hover:text-foreground">
+                    {space.data?.space.name ?? "Space"}
+                  </Link>
+                </li>
+                {sectionLabel && (
+                  <>
+                    <li aria-hidden className="shrink-0 opacity-50">
+                      /
+                    </li>
+                    <li className="shrink-0 font-medium text-foreground">{sectionLabel}</li>
+                  </>
+                )}
+              </ol>
+            </nav>
+          </div>
+        </div>
         <div className="mx-auto max-w-6xl px-5 py-8 lg:px-10">
           <Outlet />
         </div>

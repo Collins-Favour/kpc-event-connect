@@ -22,7 +22,10 @@ export const getSpaceOverview = createServerFn({ method: "GET" })
 
     const [total, today, events, desks, sessions, recent] = await Promise.all([
       scoped(
-        supabase.from("registrations").select("id", { count: "exact", head: true }).eq("space_id", data.spaceId),
+        supabase
+          .from("registrations")
+          .select("id", { count: "exact", head: true })
+          .eq("space_id", data.spaceId),
       ),
       scoped(
         supabase
@@ -53,7 +56,9 @@ export const getSpaceOverview = createServerFn({ method: "GET" })
       scoped(
         supabase
           .from("registrations")
-          .select("id, registration_number, full_name, registered_at, desk:registration_desks(name)")
+          .select(
+            "id, registration_number, full_name, registered_at, desk:registration_desks(name)",
+          )
           .eq("space_id", data.spaceId)
           .order("registered_at", { ascending: false })
           .limit(8),
@@ -147,7 +152,11 @@ export const listRegistrations = createServerFn({ method: "POST" })
     }
 
     const from = (data.page - 1) * data.pageSize;
-    const { data: rows, count, error } = await query
+    const {
+      data: rows,
+      count,
+      error,
+    } = await query
       .order("registered_at", { ascending: false })
       .range(from, from + data.pageSize - 1);
     if (error) throw new Error("Could not load registrations.");

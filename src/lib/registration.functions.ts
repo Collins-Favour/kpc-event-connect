@@ -111,7 +111,9 @@ export const getSessionContext = createServerFn({ method: "POST" })
 
     const { data: template } = await supabaseAdmin
       .from("registration_templates")
-      .select("id, fields:registration_template_fields(id, label, field_key, field_type, required, options, help_text, display_order, active, is_primary)")
+      .select(
+        "id, fields:registration_template_fields(id, label, field_key, field_type, required, options, help_text, display_order, active, is_primary)",
+      )
       .eq("event_id", session.event_id)
       .maybeSingle();
 
@@ -155,7 +157,9 @@ export const submitRegistration = createServerFn({ method: "POST" })
 
     const { data: template } = await supabaseAdmin
       .from("registration_templates")
-      .select("id, fields:registration_template_fields(id, label, field_key, field_type, required, options, active)")
+      .select(
+        "id, fields:registration_template_fields(id, label, field_key, field_type, required, options, active)",
+      )
       .eq("event_id", session.event_id)
       .maybeSingle();
     const fields = (template?.fields ?? []).filter((f) => f.active);
@@ -180,9 +184,14 @@ export const submitRegistration = createServerFn({ method: "POST" })
         throw new HttpError(`${field.label} must be a number.`, 400);
       }
       const options = Array.isArray(field.options) ? (field.options as string[]) : [];
-      if (value && options.length > 0 && ["SELECT", "RADIO"].includes(field.field_type)) {
-        if (!options.includes(value)) throw new HttpError(`${field.label} has an invalid choice.`, 400);
+      if (value && field.field_type === "BOOLEAN" && !["Yes", "No"].includes(value)) {
+        throw new HttpError(`${field.label} must be answered Yes or No.`, 400);
       }
+      if (value && options.length > 0 && ["SELECT", "RADIO"].includes(field.field_type)) {
+        if (!options.includes(value))
+          throw new HttpError(`${field.label} has an invalid choice.`, 400);
+      }
+
       clean[field.field_key] = value;
     }
 

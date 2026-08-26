@@ -85,6 +85,16 @@ export async function requireMembership(
   return { role: data.role, spaceId };
 }
 
+/** Platform-level gate: read from the caller's own token, never from input. */
+export async function requirePlatformAdmin(supabase: Client, userId: string): Promise<void> {
+  const { data } = await supabase
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) throw new HttpError("Platform administrators only.", 403);
+}
+
 export async function writeAudit(
   admin: Client,
   entry: {
@@ -109,8 +119,26 @@ export async function writeAudit(
 }
 
 export const DEFAULT_TEMPLATE_FIELDS = [
-  { label: "Full name", field_key: "full_name", field_type: "TEXT", required: true, is_primary: true },
-  { label: "Phone number", field_key: "phone", field_type: "PHONE", required: false, is_primary: true },
+  {
+    label: "Full name",
+    field_key: "full_name",
+    field_type: "TEXT",
+    required: true,
+    is_primary: true,
+  },
+  {
+    label: "Phone number",
+    field_key: "phone",
+    field_type: "PHONE",
+    required: false,
+    is_primary: true,
+  },
   { label: "Email", field_key: "email", field_type: "EMAIL", required: false, is_primary: true },
-  { label: "Location", field_key: "location", field_type: "TEXT", required: false, is_primary: true },
+  {
+    label: "Location",
+    field_key: "location",
+    field_type: "TEXT",
+    required: false,
+    is_primary: true,
+  },
 ] as const;

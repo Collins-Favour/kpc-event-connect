@@ -2,7 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { issueDeskToken, listDesks, listEvents, revokeDeskToken, upsertDesk } from "@/lib/events.functions";
+import {
+  issueDeskToken,
+  listDesks,
+  listEvents,
+  revokeDeskToken,
+  upsertDesk,
+} from "@/lib/events.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +33,6 @@ import { toast } from "sonner";
 import { friendlyError } from "@/lib/error-message";
 import { Copy, KeyRound, Loader2, Plus } from "lucide-react";
 
-
 /** Falls back to a slug-style code derived from the desk name. */
 function deskCodeFromName(name: string) {
   const base = name
@@ -43,7 +48,10 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/desks")({
   head: () => ({
     meta: [
       { title: "Registration desks — Leepek" },
-      { name: "description", content: "Create registration desks and issue secure, expiring desk tokens." },
+      {
+        name: "description",
+        content: "Create registration desks and issue secure, expiring desk tokens.",
+      },
       { property: "og:title", content: "Registration desks — Leepek" },
       { property: "og:description", content: "Create desks and issue secure desk tokens." },
     ],
@@ -60,7 +68,10 @@ function DesksPage() {
   const issueFn = useServerFn(issueDeskToken);
   const revokeFn = useServerFn(revokeDeskToken);
 
-  const events = useQuery({ queryKey: ["events", spaceId], queryFn: () => eventsFn({ data: { spaceId } }) });
+  const events = useQuery({
+    queryKey: ["events", spaceId],
+    queryFn: () => eventsFn({ data: { spaceId } }),
+  });
   const [eventId, setEventId] = useState<string | undefined>();
   const activeEvent = eventId ?? events.data?.[0]?.id;
 
@@ -74,7 +85,8 @@ function DesksPage() {
   const [form, setForm] = useState({ name: "", code: "", location: "" });
   const [issued, setIssued] = useState<{ token: string; expires_at: string } | null>(null);
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["desks", spaceId, activeEvent] });
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["desks", spaceId, activeEvent] });
 
   const save = useMutation({
     mutationFn: () =>
@@ -95,8 +107,7 @@ function DesksPage() {
       setForm({ name: "", code: "", location: "" });
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not create the desk.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not create the desk.")),
   });
 
   const issue = useMutation({
@@ -105,8 +116,7 @@ function DesksPage() {
       setIssued({ token: result.token, expires_at: result.expires_at });
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not issue a token.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not issue a token.")),
   });
 
   const revoke = useMutation({
@@ -118,7 +128,13 @@ function DesksPage() {
   });
 
   const toggleStatus = useMutation({
-    mutationFn: (desk: { id: string; name: string; code: string; location: string | null; status: string }) =>
+    mutationFn: (desk: {
+      id: string;
+      name: string;
+      code: string;
+      location: string | null;
+      status: string;
+    }) =>
       upsertFn({
         data: {
           spaceId,
@@ -166,7 +182,9 @@ function DesksPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {desks.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-36 rounded-xl" />)}
         {desks.data?.desks.map((desk) => {
-          const token = desks.data.tokens.find((t) => t.desk_id === desk.id && t.status === "ACTIVE");
+          const token = desks.data.tokens.find(
+            (t) => t.desk_id === desk.id && t.status === "ACTIVE",
+          );
           const live = desks.data.sessions.some((s) => s.desk_id === desk.id);
           return (
             <Card key={desk.id} className="animate-rise">
@@ -199,7 +217,11 @@ function DesksPage() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Button size="sm" onClick={() => issue.mutate(desk.id)} disabled={issue.isPending}>
+                  <Button
+                    size="sm"
+                    onClick={() => issue.mutate(desk.id)}
+                    disabled={issue.isPending}
+                  >
                     <KeyRound className="size-4" />
                     {token ? "Regenerate token" : "Issue token"}
                   </Button>

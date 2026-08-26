@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.grant_platform_admin_for_seed_email() FROM PUBLIC, anon, authenticated;

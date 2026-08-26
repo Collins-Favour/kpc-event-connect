@@ -8,22 +8,39 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Building2, User, Users } from "lucide-react";
 import { toast } from "sonner";
+import { PageNav } from "@/components/page-nav";
 
 export const Route = createFileRoute("/_authenticated/create")({
   head: () => ({
     meta: [
       { title: "Create a space — Leepek" },
-      { name: "description", content: "Create a workspace for your events, registration desks and attendance data." },
+      {
+        name: "description",
+        content: "Create a workspace for your events, registration desks and attendance data.",
+      },
       { property: "og:title", content: "Create a space — Leepek" },
-      { property: "og:description", content: "Create a workspace for your events and registration desks." },
+      {
+        property: "og:description",
+        content: "Create a workspace for your events and registration desks.",
+      },
     ],
   }),
   component: CreateSpacePage,
 });
 
 const types = [
-  { value: "INDIVIDUAL", label: "Individual", icon: User, hint: "Just you, running your own events" },
-  { value: "ORGANIZATION", label: "Organization", icon: Building2, hint: "A company, school, church or NGO" },
+  {
+    value: "INDIVIDUAL",
+    label: "Individual",
+    icon: User,
+    hint: "Just you, running your own events",
+  },
+  {
+    value: "ORGANIZATION",
+    label: "Organization",
+    icon: Building2,
+    hint: "A company, school, church or NGO",
+  },
   { value: "TEAM", label: "Team", icon: Users, hint: "A group inside a larger organization" },
 ] as const;
 
@@ -60,9 +77,7 @@ function CreateSpacePage() {
   return (
     <main className="min-h-screen bg-background px-6 py-12">
       <div className="mx-auto max-w-lg">
-        <Link to="/spaces" className="text-sm text-muted-foreground underline underline-offset-4">
-          Back to your spaces
-        </Link>
+        <PageNav className="-ml-2" />
         <h1 className="mt-6 text-3xl">Create a space</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           You become its super admin. You can invite others afterwards.

@@ -10,7 +10,10 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/")({
   head: () => ({
     meta: [
       { title: "Space overview — Leepek" },
-      { name: "description", content: "Live registration totals, desk activity and recent attendees." },
+      {
+        name: "description",
+        content: "Live registration totals, desk activity and recent attendees.",
+      },
       { property: "og:title", content: "Space overview — Leepek" },
       { property: "og:description", content: "Live registration totals and desk activity." },
     ],
@@ -42,7 +45,9 @@ function OverviewPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl">Overview</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Live picture of registration activity.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Live picture of registration activity.
+          </p>
         </div>
         <Button asChild variant="outline" size="sm">
           <Link to="/s/$spaceId/desks" params={{ spaceId }}>

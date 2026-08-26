@@ -37,7 +37,10 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/templates")({
   head: () => ({
     meta: [
       { title: "Registration templates — Leepek" },
-      { name: "description", content: "Design the registration form for each event with custom fields." },
+      {
+        name: "description",
+        content: "Design the registration form for each event with custom fields.",
+      },
       { property: "og:title", content: "Registration templates — Leepek" },
       { property: "og:description", content: "Design custom registration forms for your events." },
     ],
@@ -46,17 +49,43 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/templates")({
 });
 
 const FIELD_TYPES = [
-  "TEXT",
-  "NUMBER",
-  "EMAIL",
-  "PHONE",
-  "DATE",
-  "SELECT",
-  "MULTISELECT",
-  "CHECKBOX",
-  "RADIO",
+  { value: "TEXT", label: "Text" },
+  { value: "NUMBER", label: "Number" },
+  { value: "EMAIL", label: "Email" },
+  { value: "PHONE", label: "Phone" },
+  { value: "DATE", label: "Date" },
+  { value: "BOOLEAN", label: "Yes / No" },
+  { value: "SELECT", label: "Single select" },
+  { value: "MULTISELECT", label: "Multiple select" },
+  { value: "CHECKBOX", label: "Checkbox" },
+  { value: "RADIO", label: "Choice buttons" },
 ] as const;
-type FieldType = (typeof FIELD_TYPES)[number];
+type FieldType = (typeof FIELD_TYPES)[number]["value"];
+
+/** One-click starters for the questions almost every event asks. */
+const PRESETS = [
+  {
+    name: "Gender",
+    label: "Gender",
+    field_key: "gender",
+    field_type: "RADIO" as FieldType,
+    optionsText: "Male\nFemale",
+  },
+  {
+    name: "Yes / No question",
+    label: "First time attending?",
+    field_key: "first_time",
+    field_type: "BOOLEAN" as FieldType,
+    optionsText: "",
+  },
+  {
+    name: "Age group",
+    label: "Age group",
+    field_key: "age_group",
+    field_type: "SELECT" as FieldType,
+    optionsText: "Under 18\n18-24\n25-34\n35-49\n50+",
+  },
+];
 
 function TemplatesPage() {
   const { spaceId } = Route.useParams();
@@ -67,7 +96,10 @@ function TemplatesPage() {
   const deleteFn = useServerFn(deleteTemplateField);
   const reorderFn = useServerFn(reorderTemplateFields);
 
-  const events = useQuery({ queryKey: ["events", spaceId], queryFn: () => eventsFn({ data: { spaceId } }) });
+  const events = useQuery({
+    queryKey: ["events", spaceId],
+    queryFn: () => eventsFn({ data: { spaceId } }),
+  });
   const [eventId, setEventId] = useState<string | undefined>();
   const activeEvent = eventId ?? events.data?.[0]?.id;
 
@@ -116,8 +148,7 @@ function TemplatesPage() {
       setOpen(false);
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not save the field.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not save the field.")),
   });
 
   const remove = useMutation({
@@ -126,8 +157,7 @@ function TemplatesPage() {
       toast.success("Field removed");
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not remove the field.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not remove the field.")),
   });
 
   const reorder = useMutation({
@@ -190,6 +220,35 @@ function TemplatesPage() {
         </div>
       </header>
 
+      {template.data && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground">Quick add:</span>
+          {PRESETS.map((preset) => (
+            <Button
+              key={preset.name}
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setEditing(undefined);
+                setForm({
+                  label: preset.label,
+                  field_key: preset.field_key,
+                  field_type: preset.field_type,
+                  required: false,
+                  help_text: "",
+                  optionsText: preset.optionsText,
+                  active: true,
+                });
+                setOpen(true);
+              }}
+            >
+              <Plus className="size-3.5" />
+              {preset.name}
+            </Button>
+          ))}
+        </div>
+      )}
+
       {!activeEvent && (
         <Card>
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
@@ -214,10 +273,20 @@ function TemplatesPage() {
                 </p>
               </div>
               <div className="flex items-center gap-1">
-                <Button size="icon" variant="ghost" onClick={() => move(index, -1)} aria-label="Move up">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => move(index, -1)}
+                  aria-label="Move up"
+                >
                   <ArrowUp className="size-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => move(index, 1)} aria-label="Move down">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => move(index, 1)}
+                  aria-label="Move down"
+                >
                   <ArrowDown className="size-4" />
                 </Button>
                 <Button
@@ -306,8 +375,8 @@ function TemplatesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {FIELD_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -28,7 +28,9 @@ function Index() {
       <AmbientBackground />
       <div className="relative z-10 mx-auto w-full max-w-6xl">
         <nav className="animate-fade flex items-center justify-between">
-          <span className="font-display text-2xl font-bold tracking-tight text-primary">Leepek</span>
+          <span className="font-display text-2xl font-bold tracking-tight text-primary">
+            Leepek
+          </span>
           <Link
             to="/login"
             className="text-sm font-semibold text-success transition-colors duration-200 hover:text-primary"
@@ -90,7 +92,9 @@ function Index() {
             <div className="flex size-12 items-center justify-center rounded-xl bg-accent/10 transition-transform duration-300 group-hover:scale-110">
               <LayoutGrid className="size-5 text-accent" />
             </div>
-            <h2 className="mt-6 font-display text-xl font-semibold text-primary">Forms you define</h2>
+            <h2 className="mt-6 font-display text-xl font-semibold text-primary">
+              Forms you define
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Start from name, phone, email and location, then add any field your event needs.
             </p>
@@ -116,7 +120,6 @@ function Index() {
               stays private to its own team.
             </p>
           </article>
-
         </section>
 
         <footer className="mt-16 text-center">

@@ -22,16 +22,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/error-message";
 import { Copy, Loader2, UserPlus } from "lucide-react";
+import { PageNav } from "@/components/page-nav";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/members")({
   head: () => ({
@@ -45,8 +39,6 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/members")({
   component: MembersPage,
 });
 
-type Role = "SPACE_ADMIN" | "SPACE_SUPER_ADMIN";
-
 function MembersPage() {
   const { spaceId } = Route.useParams();
   const queryClient = useQueryClient();
@@ -57,19 +49,24 @@ function MembersPage() {
   const roleFn = useServerFn(updateMemberRole);
   const removeFn = useServerFn(removeMember);
 
-  const space = useQuery({ queryKey: ["space", spaceId], queryFn: () => spaceFn({ data: { spaceId } }) });
-  const members = useQuery({ queryKey: ["members", spaceId], queryFn: () => listFn({ data: { spaceId } }) });
+  const space = useQuery({
+    queryKey: ["space", spaceId],
+    queryFn: () => spaceFn({ data: { spaceId } }),
+  });
+  const members = useQuery({
+    queryKey: ["members", spaceId],
+    queryFn: () => listFn({ data: { spaceId } }),
+  });
   const isSuper = space.data?.role === "SPACE_SUPER_ADMIN";
 
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<Role>("SPACE_ADMIN");
   const [link, setLink] = useState<string | null>(null);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["members", spaceId] });
 
   const invite = useMutation({
-    mutationFn: () => inviteFn({ data: { spaceId, email, role } }),
+    mutationFn: () => inviteFn({ data: { spaceId, email, role: "SPACE_ADMIN" as const } }),
     onSuccess: (result) => {
       setLink(`${window.location.origin}/invite/${result.token}`);
       setOpen(false);
@@ -81,13 +78,13 @@ function MembersPage() {
   });
 
   const changeRole = useMutation({
-    mutationFn: (input: { memberId: string; role: Role }) => roleFn({ data: { spaceId, ...input } }),
+    mutationFn: (input: { memberId: string }) =>
+      roleFn({ data: { spaceId, ...input, role: "SPACE_ADMIN" as const } }),
     onSuccess: () => {
       toast.success("Role updated");
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not update the role.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not update the role.")),
   });
 
   const remove = useMutation({
@@ -96,8 +93,7 @@ function MembersPage() {
       toast.success("Member removed");
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not remove the member.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not remove the member.")),
   });
 
   const revoke = useMutation({
@@ -107,6 +103,7 @@ function MembersPage() {
 
   return (
     <div className="space-y-8">
+      <PageNav className="-ml-2 lg:hidden" />
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl">Members</h1>
@@ -127,7 +124,9 @@ function MembersPage() {
           {(members.data?.members ?? []).map((member) => (
             <div key={member.id} className="flex flex-wrap items-center gap-3 px-6 py-4">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{member.profile?.name || member.profile?.email}</p>
+                <p className="truncate font-medium">
+                  {member.profile?.name || member.profile?.email}
+                </p>
                 <p className="truncate text-xs text-muted-foreground">{member.profile?.email}</p>
               </div>
               <Badge variant={member.role === "SPACE_SUPER_ADMIN" ? "default" : "secondary"}>
@@ -135,18 +134,15 @@ function MembersPage() {
               </Badge>
               {isSuper && (
                 <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      changeRole.mutate({
-                        memberId: member.id,
-                        role: member.role === "SPACE_SUPER_ADMIN" ? "SPACE_ADMIN" : "SPACE_SUPER_ADMIN",
-                      })
-                    }
-                  >
-                    {member.role === "SPACE_SUPER_ADMIN" ? "Make admin" : "Promote"}
-                  </Button>
+                  {member.role === "SPACE_SUPER_ADMIN" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => changeRole.mutate({ memberId: member.id })}
+                    >
+                      Make admin
+                    </Button>
+                  )}
                   <Button size="sm" variant="ghost" onClick={() => remove.mutate(member.id)}>
                     Remove
                   </Button>
@@ -196,18 +192,9 @@ function MembersPage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <Label>Role</Label>
-              <Select value={role} onValueChange={(value) => setRole(value as Role)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SPACE_ADMIN">Space admin</SelectItem>
-                  <SelectItem value="SPACE_SUPER_ADMIN">Space super admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              They join as a space admin. Only the space owner keeps super admin rights.
+            </p>
           </div>
           <DialogFooter>
             <Button onClick={() => invite.mutate()} disabled={invite.isPending}>

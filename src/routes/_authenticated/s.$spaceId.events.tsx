@@ -33,7 +33,10 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/events")({
   head: () => ({
     meta: [
       { title: "Events — Leepek" },
-      { name: "description", content: "Create and manage the events people register for in this space." },
+      {
+        name: "description",
+        content: "Create and manage the events people register for in this space.",
+      },
       { property: "og:title", content: "Events — Leepek" },
       { property: "og:description", content: "Create and manage your registration events." },
     ],
@@ -74,8 +77,7 @@ function EventsPage() {
       setEditing(undefined);
       queryClient.invalidateQueries({ queryKey: ["events", spaceId] });
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not save the event.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not save the event.")),
   });
 
   function openNew() {
