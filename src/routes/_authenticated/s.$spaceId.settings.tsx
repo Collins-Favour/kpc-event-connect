@@ -101,7 +101,7 @@ function SettingsPage() {
                 />
               </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>Type: {space.data?.space.type}</span>
+                <span>Type: {space.data?.space.space_type}</span>
                 <span>Status: {space.data?.space.status}</span>
               </div>
               {canEdit && (

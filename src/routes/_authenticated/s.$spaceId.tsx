@@ -99,7 +99,7 @@ function SpaceLayout() {
           <nav className="mt-4 flex gap-1 overflow-x-auto lg:mt-6 lg:flex-col lg:overflow-visible">
             {nav.map((item) => {
               const href = item.to.replace("$spaceId", spaceId);
-              const active = item.exact
+              const active = "exact" in item && item.exact
                 ? location.pathname === href || location.pathname === `${href}/`
                 : location.pathname.startsWith(href);
               return (

@@ -66,14 +66,20 @@ function LoginPage() {
         options: { emailRedirectTo: window.location.origin, data: { name } },
       });
       setSubmitting(false);
-      if (error) return toast.error(error.message);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
       toast.success("Check your email to confirm your account.");
       setMode("signin");
       return;
     }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setSubmitting(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     navigate({ to: "/spaces", replace: true });
   }
 
