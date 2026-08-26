@@ -85,7 +85,18 @@ export async function requireMembership(
   return { role: data.role, spaceId };
 }
 
+/** Platform-level gate: read from the caller's own token, never from input. */
+export async function requirePlatformAdmin(supabase: Client, userId: string): Promise<void> {
+  const { data } = await supabase
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) throw new HttpError("Platform administrators only.", 403);
+}
+
 export async function writeAudit(
+
   admin: Client,
   entry: {
     space_id: string | null;
