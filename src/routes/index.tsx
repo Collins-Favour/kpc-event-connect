@@ -107,24 +107,16 @@ function Index() {
           </article>
 
           <article className="animate-rise stagger-4 hover-lift col-span-1 rounded-3xl border-2 border-dashed border-accent/40 bg-accent/5 p-8 transition-colors duration-300 hover:bg-accent/10 md:col-span-4">
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-              <div>
-                <ShieldCheck className="size-7 text-accent" />
-                <h2 className="mt-4 font-display text-2xl font-semibold text-primary">
-                  Isolated by design
-                </h2>
-                <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-                  Every request is checked against your membership on the server. Workspaces never
-                  see each other.
-                </p>
-              </div>
-              <div className="flex -space-x-3">
-                <span className="size-10 rounded-full border-2 border-background bg-primary" />
-                <span className="size-10 rounded-full border-2 border-background bg-success" />
-                <span className="size-10 rounded-full border-2 border-background bg-accent" />
-              </div>
-            </div>
+            <ShieldCheck className="size-7 text-accent" />
+            <h2 className="mt-4 font-display text-2xl font-semibold text-primary">
+              Secure by default
+            </h2>
+            <p className="mt-3 max-w-md text-sm text-muted-foreground">
+              Every request is checked against your membership on the server, so each workspace
+              stays private to its own team.
+            </p>
           </article>
+
         </section>
 
         <footer className="mt-16 text-center">
