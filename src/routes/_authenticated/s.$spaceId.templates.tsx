@@ -46,17 +46,44 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/templates")({
 });
 
 const FIELD_TYPES = [
-  "TEXT",
-  "NUMBER",
-  "EMAIL",
-  "PHONE",
-  "DATE",
-  "SELECT",
-  "MULTISELECT",
-  "CHECKBOX",
-  "RADIO",
+  { value: "TEXT", label: "Text" },
+  { value: "NUMBER", label: "Number" },
+  { value: "EMAIL", label: "Email" },
+  { value: "PHONE", label: "Phone" },
+  { value: "DATE", label: "Date" },
+  { value: "BOOLEAN", label: "Yes / No" },
+  { value: "SELECT", label: "Single select" },
+  { value: "MULTISELECT", label: "Multiple select" },
+  { value: "CHECKBOX", label: "Checkbox" },
+  { value: "RADIO", label: "Choice buttons" },
 ] as const;
-type FieldType = (typeof FIELD_TYPES)[number];
+type FieldType = (typeof FIELD_TYPES)[number]["value"];
+
+/** One-click starters for the questions almost every event asks. */
+const PRESETS = [
+  {
+    name: "Gender",
+    label: "Gender",
+    field_key: "gender",
+    field_type: "RADIO" as FieldType,
+    optionsText: "Male\nFemale",
+  },
+  {
+    name: "Yes / No question",
+    label: "First time attending?",
+    field_key: "first_time",
+    field_type: "BOOLEAN" as FieldType,
+    optionsText: "",
+  },
+  {
+    name: "Age group",
+    label: "Age group",
+    field_key: "age_group",
+    field_type: "SELECT" as FieldType,
+    optionsText: "Under 18\n18-24\n25-34\n35-49\n50+",
+  },
+];
+
 
 function TemplatesPage() {
   const { spaceId } = Route.useParams();
