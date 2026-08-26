@@ -81,12 +81,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Registry — Event Registration & Attendance Platform" },
       {
         name: "description",
-        "Multi-tenant event registration and attendance management for organizations, teams and communities.",
+        content:
+          "Multi-tenant event registration and attendance management for organizations, teams and communities.",
       },
       { property: "og:title", content: "Registry — Event Registration & Attendance Platform" },
       {
         property: "og:description",
-        "Multi-tenant event registration and attendance management for organizations, teams and communities.",
+        content:
+          "Multi-tenant event registration and attendance management for organizations, teams and communities.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
