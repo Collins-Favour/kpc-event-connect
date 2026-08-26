@@ -10,6 +10,7 @@ import {
   removePlatformAdmin,
   setSpaceStatus,
 } from "@/lib/spaces.functions";
+import { PlatformSupport } from "@/components/platform-support";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
