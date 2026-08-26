@@ -824,6 +824,7 @@ export type Database = {
         | "MULTISELECT"
         | "CHECKBOX"
         | "RADIO"
+        | "BOOLEAN"
       invitation_status: "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED"
       member_status: "ACTIVE" | "SUSPENDED"
       session_status: "ACTIVE" | "ENDED"
@@ -970,6 +971,7 @@ export const Constants = {
         "MULTISELECT",
         "CHECKBOX",
         "RADIO",
+        "BOOLEAN",
       ],
       invitation_status: ["PENDING", "ACCEPTED", "EXPIRED", "REVOKED"],
       member_status: ["ACTIVE", "SUSPENDED"],
