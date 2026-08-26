@@ -11,11 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as SetupRouteImport } from './routes/setup'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AuthenticatedDeskRouteImport } from './routes/_authenticated/desk'
-import { Route as AuthenticatedRegisterRouteImport } from './routes/_authenticated/register'
+import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
+import { Route as AuthenticatedPlatformRouteImport } from './routes/_authenticated/platform'
+import { Route as AuthenticatedSpacesRouteImport } from './routes/_authenticated/spaces'
+import { Route as DeskSessionIdRouteImport } from './routes/desk.$sessionId'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as AuthenticatedSSpaceIdRouteImport } from './routes/_authenticated/s.$spaceId'
+import { Route as AuthenticatedSSpaceIdIndexRouteImport } from './routes/_authenticated/s.$spaceId.index'
+import { Route as AuthenticatedSSpaceIdAttendeesRouteImport } from './routes/_authenticated/s.$spaceId.attendees'
+import { Route as AuthenticatedSSpaceIdDesksRouteImport } from './routes/_authenticated/s.$spaceId.desks'
+import { Route as AuthenticatedSSpaceIdEventsRouteImport } from './routes/_authenticated/s.$spaceId.events'
+import { Route as AuthenticatedSSpaceIdMembersRouteImport } from './routes/_authenticated/s.$spaceId.members'
+import { Route as AuthenticatedSSpaceIdReportsRouteImport } from './routes/_authenticated/s.$spaceId.reports'
+import { Route as AuthenticatedSSpaceIdSettingsRouteImport } from './routes/_authenticated/s.$spaceId.settings'
+import { Route as AuthenticatedSSpaceIdTemplatesRouteImport } from './routes/_authenticated/s.$spaceId.templates'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -26,79 +37,220 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SetupRoute = SetupRouteImport.update({
-  id: '/setup',
-  path: '/setup',
+const AuthenticatedCreateRoute = AuthenticatedCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlatformRoute = AuthenticatedPlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSpacesRoute = AuthenticatedSpacesRouteImport.update({
+  id: '/spaces',
+  path: '/spaces',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const DeskSessionIdRoute = DeskSessionIdRouteImport.update({
+  id: '/desk/$sessionId',
+  path: '/desk/$sessionId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSSpaceIdRoute = AuthenticatedSSpaceIdRouteImport.update({
+  id: '/s/$spaceId',
+  path: '/s/$spaceId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDeskRoute = AuthenticatedDeskRouteImport.update({
-  id: '/desk',
-  path: '/desk',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRegisterRoute = AuthenticatedRegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedSSpaceIdIndexRoute =
+  AuthenticatedSSpaceIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
+const AuthenticatedSSpaceIdAttendeesRoute =
+  AuthenticatedSSpaceIdAttendeesRouteImport.update({
+    id: '/attendees',
+    path: '/attendees',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
+const AuthenticatedSSpaceIdDesksRoute =
+  AuthenticatedSSpaceIdDesksRouteImport.update({
+    id: '/desks',
+    path: '/desks',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
+const AuthenticatedSSpaceIdEventsRoute =
+  AuthenticatedSSpaceIdEventsRouteImport.update({
+    id: '/events',
+    path: '/events',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
+const AuthenticatedSSpaceIdMembersRoute =
+  AuthenticatedSSpaceIdMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
+const AuthenticatedSSpaceIdReportsRoute =
+  AuthenticatedSSpaceIdReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
+const AuthenticatedSSpaceIdSettingsRoute =
+  AuthenticatedSSpaceIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
+const AuthenticatedSSpaceIdTemplatesRoute =
+  AuthenticatedSSpaceIdTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => AuthenticatedSSpaceIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
   '/login': typeof LoginRoute
-  '/setup': typeof SetupRoute
-  '/admin': typeof AuthenticatedAdminRoute
-  '/desk': typeof AuthenticatedDeskRoute
-  '/register': typeof AuthenticatedRegisterRoute
+  '/create': typeof AuthenticatedCreateRoute
+  '/platform': typeof AuthenticatedPlatformRoute
+  '/spaces': typeof AuthenticatedSpacesRoute
+  '/desk/$sessionId': typeof DeskSessionIdRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/s/$spaceId': typeof AuthenticatedSSpaceIdRouteWithChildren
+  '/s/$spaceId/attendees': typeof AuthenticatedSSpaceIdAttendeesRoute
+  '/s/$spaceId/desks': typeof AuthenticatedSSpaceIdDesksRoute
+  '/s/$spaceId/events': typeof AuthenticatedSSpaceIdEventsRoute
+  '/s/$spaceId/members': typeof AuthenticatedSSpaceIdMembersRoute
+  '/s/$spaceId/reports': typeof AuthenticatedSSpaceIdReportsRoute
+  '/s/$spaceId/settings': typeof AuthenticatedSSpaceIdSettingsRoute
+  '/s/$spaceId/templates': typeof AuthenticatedSSpaceIdTemplatesRoute
+  '/s/$spaceId/': typeof AuthenticatedSSpaceIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
   '/login': typeof LoginRoute
-  '/setup': typeof SetupRoute
-  '/admin': typeof AuthenticatedAdminRoute
-  '/desk': typeof AuthenticatedDeskRoute
-  '/register': typeof AuthenticatedRegisterRoute
+  '/create': typeof AuthenticatedCreateRoute
+  '/platform': typeof AuthenticatedPlatformRoute
+  '/spaces': typeof AuthenticatedSpacesRoute
+  '/desk/$sessionId': typeof DeskSessionIdRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/s/$spaceId/attendees': typeof AuthenticatedSSpaceIdAttendeesRoute
+  '/s/$spaceId/desks': typeof AuthenticatedSSpaceIdDesksRoute
+  '/s/$spaceId/events': typeof AuthenticatedSSpaceIdEventsRoute
+  '/s/$spaceId/members': typeof AuthenticatedSSpaceIdMembersRoute
+  '/s/$spaceId/reports': typeof AuthenticatedSSpaceIdReportsRoute
+  '/s/$spaceId/settings': typeof AuthenticatedSSpaceIdSettingsRoute
+  '/s/$spaceId/templates': typeof AuthenticatedSSpaceIdTemplatesRoute
+  '/s/$spaceId': typeof AuthenticatedSSpaceIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/join': typeof JoinRoute
   '/login': typeof LoginRoute
-  '/setup': typeof SetupRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/desk': typeof AuthenticatedDeskRoute
-  '/_authenticated/register': typeof AuthenticatedRegisterRoute
+  '/_authenticated/create': typeof AuthenticatedCreateRoute
+  '/_authenticated/platform': typeof AuthenticatedPlatformRoute
+  '/_authenticated/spaces': typeof AuthenticatedSpacesRoute
+  '/desk/$sessionId': typeof DeskSessionIdRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/_authenticated/s/$spaceId': typeof AuthenticatedSSpaceIdRouteWithChildren
+  '/_authenticated/s/$spaceId/attendees': typeof AuthenticatedSSpaceIdAttendeesRoute
+  '/_authenticated/s/$spaceId/desks': typeof AuthenticatedSSpaceIdDesksRoute
+  '/_authenticated/s/$spaceId/events': typeof AuthenticatedSSpaceIdEventsRoute
+  '/_authenticated/s/$spaceId/members': typeof AuthenticatedSSpaceIdMembersRoute
+  '/_authenticated/s/$spaceId/reports': typeof AuthenticatedSSpaceIdReportsRoute
+  '/_authenticated/s/$spaceId/settings': typeof AuthenticatedSSpaceIdSettingsRoute
+  '/_authenticated/s/$spaceId/templates': typeof AuthenticatedSSpaceIdTemplatesRoute
+  '/_authenticated/s/$spaceId/': typeof AuthenticatedSSpaceIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/setup' | '/admin' | '/desk' | '/register'
+  fullPaths:
+    | '/'
+    | '/join'
+    | '/login'
+    | '/create'
+    | '/platform'
+    | '/spaces'
+    | '/desk/$sessionId'
+    | '/invite/$token'
+    | '/s/$spaceId'
+    | '/s/$spaceId/attendees'
+    | '/s/$spaceId/desks'
+    | '/s/$spaceId/events'
+    | '/s/$spaceId/members'
+    | '/s/$spaceId/reports'
+    | '/s/$spaceId/settings'
+    | '/s/$spaceId/templates'
+    | '/s/$spaceId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/setup' | '/admin' | '/desk' | '/register'
+  to:
+    | '/'
+    | '/join'
+    | '/login'
+    | '/create'
+    | '/platform'
+    | '/spaces'
+    | '/desk/$sessionId'
+    | '/invite/$token'
+    | '/s/$spaceId/attendees'
+    | '/s/$spaceId/desks'
+    | '/s/$spaceId/events'
+    | '/s/$spaceId/members'
+    | '/s/$spaceId/reports'
+    | '/s/$spaceId/settings'
+    | '/s/$spaceId/templates'
+    | '/s/$spaceId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/join'
     | '/login'
-    | '/setup'
-    | '/_authenticated/admin'
-    | '/_authenticated/desk'
-    | '/_authenticated/register'
+    | '/_authenticated/create'
+    | '/_authenticated/platform'
+    | '/_authenticated/spaces'
+    | '/desk/$sessionId'
+    | '/invite/$token'
+    | '/_authenticated/s/$spaceId'
+    | '/_authenticated/s/$spaceId/attendees'
+    | '/_authenticated/s/$spaceId/desks'
+    | '/_authenticated/s/$spaceId/events'
+    | '/_authenticated/s/$spaceId/members'
+    | '/_authenticated/s/$spaceId/reports'
+    | '/_authenticated/s/$spaceId/settings'
+    | '/_authenticated/s/$spaceId/templates'
+    | '/_authenticated/s/$spaceId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  JoinRoute: typeof JoinRoute
   LoginRoute: typeof LoginRoute
-  SetupRoute: typeof SetupRoute
+  DeskSessionIdRoute: typeof DeskSessionIdRoute
+  InviteTokenRoute: typeof InviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -117,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -124,47 +283,146 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/setup': {
-      id: '/setup'
-      path: '/setup'
-      fullPath: '/setup'
-      preLoaderRoute: typeof SetupRouteImport
+    '/_authenticated/create': {
+      id: '/_authenticated/create'
+      path: '/create'
+      fullPath: '/create'
+      preLoaderRoute: typeof AuthenticatedCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/platform': {
+      id: '/_authenticated/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof AuthenticatedPlatformRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/spaces': {
+      id: '/_authenticated/spaces'
+      path: '/spaces'
+      fullPath: '/spaces'
+      preLoaderRoute: typeof AuthenticatedSpacesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/desk/$sessionId': {
+      id: '/desk/$sessionId'
+      path: '/desk/$sessionId'
+      fullPath: '/desk/$sessionId'
+      preLoaderRoute: typeof DeskSessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/s/$spaceId': {
+      id: '/_authenticated/s/$spaceId'
+      path: '/s/$spaceId'
+      fullPath: '/s/$spaceId'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/desk': {
-      id: '/_authenticated/desk'
-      path: '/desk'
-      fullPath: '/desk'
-      preLoaderRoute: typeof AuthenticatedDeskRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_authenticated/s/$spaceId/': {
+      id: '/_authenticated/s/$spaceId/'
+      path: '/'
+      fullPath: '/s/$spaceId/'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdIndexRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
     }
-    '/_authenticated/register': {
-      id: '/_authenticated/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof AuthenticatedRegisterRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_authenticated/s/$spaceId/attendees': {
+      id: '/_authenticated/s/$spaceId/attendees'
+      path: '/attendees'
+      fullPath: '/s/$spaceId/attendees'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdAttendeesRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
+    }
+    '/_authenticated/s/$spaceId/desks': {
+      id: '/_authenticated/s/$spaceId/desks'
+      path: '/desks'
+      fullPath: '/s/$spaceId/desks'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdDesksRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
+    }
+    '/_authenticated/s/$spaceId/events': {
+      id: '/_authenticated/s/$spaceId/events'
+      path: '/events'
+      fullPath: '/s/$spaceId/events'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdEventsRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
+    }
+    '/_authenticated/s/$spaceId/members': {
+      id: '/_authenticated/s/$spaceId/members'
+      path: '/members'
+      fullPath: '/s/$spaceId/members'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdMembersRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
+    }
+    '/_authenticated/s/$spaceId/reports': {
+      id: '/_authenticated/s/$spaceId/reports'
+      path: '/reports'
+      fullPath: '/s/$spaceId/reports'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdReportsRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
+    }
+    '/_authenticated/s/$spaceId/settings': {
+      id: '/_authenticated/s/$spaceId/settings'
+      path: '/settings'
+      fullPath: '/s/$spaceId/settings'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
+    }
+    '/_authenticated/s/$spaceId/templates': {
+      id: '/_authenticated/s/$spaceId/templates'
+      path: '/templates'
+      fullPath: '/s/$spaceId/templates'
+      preLoaderRoute: typeof AuthenticatedSSpaceIdTemplatesRouteImport
+      parentRoute: typeof AuthenticatedSSpaceIdRoute
     }
   }
 }
 
+interface AuthenticatedSSpaceIdRouteChildren {
+  AuthenticatedSSpaceIdAttendeesRoute: typeof AuthenticatedSSpaceIdAttendeesRoute
+  AuthenticatedSSpaceIdDesksRoute: typeof AuthenticatedSSpaceIdDesksRoute
+  AuthenticatedSSpaceIdEventsRoute: typeof AuthenticatedSSpaceIdEventsRoute
+  AuthenticatedSSpaceIdMembersRoute: typeof AuthenticatedSSpaceIdMembersRoute
+  AuthenticatedSSpaceIdReportsRoute: typeof AuthenticatedSSpaceIdReportsRoute
+  AuthenticatedSSpaceIdSettingsRoute: typeof AuthenticatedSSpaceIdSettingsRoute
+  AuthenticatedSSpaceIdTemplatesRoute: typeof AuthenticatedSSpaceIdTemplatesRoute
+  AuthenticatedSSpaceIdIndexRoute: typeof AuthenticatedSSpaceIdIndexRoute
+}
+
+const AuthenticatedSSpaceIdRouteChildren: AuthenticatedSSpaceIdRouteChildren = {
+  AuthenticatedSSpaceIdAttendeesRoute: AuthenticatedSSpaceIdAttendeesRoute,
+  AuthenticatedSSpaceIdDesksRoute: AuthenticatedSSpaceIdDesksRoute,
+  AuthenticatedSSpaceIdEventsRoute: AuthenticatedSSpaceIdEventsRoute,
+  AuthenticatedSSpaceIdMembersRoute: AuthenticatedSSpaceIdMembersRoute,
+  AuthenticatedSSpaceIdReportsRoute: AuthenticatedSSpaceIdReportsRoute,
+  AuthenticatedSSpaceIdSettingsRoute: AuthenticatedSSpaceIdSettingsRoute,
+  AuthenticatedSSpaceIdTemplatesRoute: AuthenticatedSSpaceIdTemplatesRoute,
+  AuthenticatedSSpaceIdIndexRoute: AuthenticatedSSpaceIdIndexRoute,
+}
+
+const AuthenticatedSSpaceIdRouteWithChildren =
+  AuthenticatedSSpaceIdRoute._addFileChildren(
+    AuthenticatedSSpaceIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedDeskRoute: typeof AuthenticatedDeskRoute
-  AuthenticatedRegisterRoute: typeof AuthenticatedRegisterRoute
+  AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
+  AuthenticatedPlatformRoute: typeof AuthenticatedPlatformRoute
+  AuthenticatedSpacesRoute: typeof AuthenticatedSpacesRoute
+  AuthenticatedSSpaceIdRoute: typeof AuthenticatedSSpaceIdRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedDeskRoute: AuthenticatedDeskRoute,
-  AuthenticatedRegisterRoute: AuthenticatedRegisterRoute,
+  AuthenticatedCreateRoute: AuthenticatedCreateRoute,
+  AuthenticatedPlatformRoute: AuthenticatedPlatformRoute,
+  AuthenticatedSpacesRoute: AuthenticatedSpacesRoute,
+  AuthenticatedSSpaceIdRoute: AuthenticatedSSpaceIdRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -173,8 +431,10 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
-  SetupRoute: SetupRoute,
+  DeskSessionIdRoute: DeskSessionIdRoute,
+  InviteTokenRoute: InviteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,27 +1,27 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useSession } from "@/lib/use-session";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Church, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Sign in — KPC Registration System" },
+      { title: "Sign in — Registry" },
       {
         name: "description",
-        content:
-          "Secure sign-in for Kagumo People's Church registration desks and administrators.",
+        content: "Sign in to manage your event registration workspace, desks and attendance data.",
       },
-      { property: "og:title", content: "Sign in — KPC Registration System" },
+      { property: "og:title", content: "Sign in — Registry" },
       {
         property: "og:description",
-        content: "Secure sign-in for KPC registration desks and administrators.",
+        content: "Access your event registration workspace and attendance data.",
       },
     ],
   }),
@@ -31,43 +31,109 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { session, loading } = useSession();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) navigate({ to: "/desk", replace: true });
+    if (!loading && session) navigate({ to: "/spaces", replace: true });
   }, [loading, session, navigate]);
+
+  async function handleGoogle() {
+    setGoogleBusy(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setGoogleBusy(false);
+      toast.error("Google sign-in failed. Please try again.");
+      return;
+    }
+    if (result.redirected) return;
+    navigate({ to: "/spaces", replace: true });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    if (mode === "signup") {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin, data: { name } },
+      });
+      setSubmitting(false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success("Check your email to confirm your account.");
+      setMode("signin");
+      return;
+    }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setSubmitting(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    navigate({ to: "/desk", replace: true });
+    navigate({ to: "/spaces", replace: true });
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-sidebar px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center text-sidebar-foreground">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
-            <Church className="size-7" />
-          </div>
-          <h1 className="text-3xl font-semibold">Kagumo People&apos;s Church</h1>
-          <p className="mt-1 text-sm opacity-80">Registration &amp; Attendance System</p>
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 text-center">
+          <Link to="/" className="text-sm font-semibold tracking-tight">
+            Registry
+          </Link>
+          <h1 className="mt-6 text-2xl">
+            {mode === "signin" ? "Sign in" : "Create your account"}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Registration staff don&apos;t need an account —{" "}
+            <Link to="/join" className="underline underline-offset-4">
+              join with a desk token
+            </Link>
+            .
+          </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign in</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="animate-rise">
+          <CardContent className="pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 w-full"
+              onClick={handleGoogle}
+              disabled={googleBusy}
+            >
+              {googleBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+              Continue with Google
+            </Button>
+
+            <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              or use email
+              <span className="h-px flex-1 bg-border" />
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === "signup" && (
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full name</Label>
+                  <Input
+                    id="name"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="h-11"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -77,7 +143,7 @@ function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12"
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -85,24 +151,29 @@ function LoginPage() {
                 <Input
                   id="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete={mode === "signin" ? "current-password" : "new-password"}
                   required
+                  minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12"
+                  className="h-11"
                 />
               </div>
-              <Button type="submit" className="h-12 w-full text-base" disabled={submitting}>
-                {submitting && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Sign in
+              <Button type="submit" className="h-11 w-full" disabled={submitting}>
+                {submitting && <Loader2 className="size-4 animate-spin" />}
+                {mode === "signin" ? "Sign in" : "Create account"}
               </Button>
             </form>
-            <p className="mt-6 text-center text-xs text-muted-foreground">
-              First-time system setup?{" "}
-              <Link to="/setup" className="font-medium text-foreground underline">
-                Provision super admins
-              </Link>
-            </p>
+
+            <button
+              type="button"
+              className="mt-5 w-full text-center text-xs text-muted-foreground underline underline-offset-4"
+              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            >
+              {mode === "signin"
+                ? "Don't have an account? Create one"
+                : "Already have an account? Sign in"}
+            </button>
           </CardContent>
         </Card>
       </div>
