@@ -333,10 +333,11 @@ function TemplatesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {FIELD_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
                     </SelectItem>
                   ))}
+
                 </SelectContent>
               </Select>
             </div>
