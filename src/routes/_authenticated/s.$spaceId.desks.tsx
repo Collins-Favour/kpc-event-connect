@@ -71,7 +71,8 @@ function DesksPage() {
           spaceId,
           eventId: activeEvent!,
           name: form.name,
-          code: form.code,
+          code: form.code.trim() || deskCodeFromName(form.name),
+
           location: form.location,
           status: "ACTIVE",
         },
