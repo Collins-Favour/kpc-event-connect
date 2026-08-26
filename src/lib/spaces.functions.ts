@@ -152,6 +152,71 @@ export const updateSpace = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const spaceStatusSchema = spaceIdSchema.extend({
+  status: z.enum(["ACTIVE", "ARCHIVED"]),
+});
+
+/** Archiving keeps every record but takes the space out of daily use. */
+export const setMySpaceStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => spaceStatusSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await requireMembership(context.supabase, context.userId, data.spaceId, { superAdmin: true });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("spaces")
+      .update({ status: data.status })
+      .eq("id", data.spaceId)
+      .neq("status", "SUSPENDED");
+    if (error) throw new HttpError("Could not update the space.", 500);
+    await writeAudit(supabaseAdmin, {
+      space_id: data.spaceId,
+      actor_id: context.userId,
+      action: data.status === "ARCHIVED" ? "SPACE_ARCHIVED" : "SPACE_REACTIVATED",
+      entity_type: "space",
+      entity_id: data.spaceId,
+      description: `Space ${data.status === "ARCHIVED" ? "archived" : "reactivated"} by a super admin`,
+    });
+    return { ok: true };
+  });
+
+const deleteSpaceSchema = spaceIdSchema.extend({
+  confirmName: z.string().trim().min(1, "Type the space name to confirm"),
+});
+
+/** Permanent: every event, desk, template and registration goes with it. */
+export const deleteSpace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => deleteSpaceSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await requireMembership(context.supabase, context.userId, data.spaceId, { superAdmin: true });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: space } = await supabaseAdmin
+      .from("spaces")
+      .select("id, name")
+      .eq("id", data.spaceId)
+      .maybeSingle();
+    if (!space) throw new HttpError("Space not found.", 404);
+    if (space.name.trim().toLowerCase() !== data.confirmName.trim().toLowerCase()) {
+      throw new HttpError("The name you typed does not match this space.", 400);
+    }
+
+    const { error } = await supabaseAdmin.from("spaces").delete().eq("id", data.spaceId);
+    if (error) throw new HttpError("Could not delete the space.", 500);
+
+    // The space row is gone, so this audit entry is kept at platform level.
+    await writeAudit(supabaseAdmin, {
+      space_id: null,
+      actor_id: context.userId,
+      action: "SPACE_DELETED",
+      entity_type: "space",
+      entity_id: data.spaceId,
+      description: `Space "${space.name}" was permanently deleted`,
+    });
+    return { ok: true };
+  });
+
 /* ------------------------------- members -------------------------------- */
 
 export const listMembers = createServerFn({ method: "GET" })
