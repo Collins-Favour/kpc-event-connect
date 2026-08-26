@@ -32,18 +32,36 @@ So "if I'm from org X I can always reuse it": on the Templates page, add
 - **Copy fields from another event** — pick an existing event in the space and clone its form fields into the current one.
 - **Save as space preset / apply preset** — a named field set stored at space level that can be applied to any new event, so field keys stay consistent and segments keep working across events.
 
-### 5. Reports page
-Breakdown charts respect the active filter/segment, so a saved segment can be viewed as counts by field value and exported.
+### 5. Reports on every field, easy to share, universal formats
+- Report builder on the Reports page: pick any field (built-in or custom) and get counts, percentages, and a chart — plus cross-tabs (e.g. Gender by Location, Ministry by Event).
+- Every report and attendee list respects the active filter/segment.
+- Export formats everywhere: CSV, Excel (.xlsx), PDF, and a clean print view. Charts included in the PDF.
+- Sharing: copy a link that reproduces the exact filter/segment for other admins in the space, plus one-click copy-to-clipboard of the summary table and email/WhatsApp share of the exported file.
+
+### 6. Help & support channels
+- **Desk help button**: a persistent "Need help?" button on the registration desk screen. Opens a short form (topic + message, desk/event auto-attached) that raises a request to the space's admins. Works for signed-in registrars and desk-token sessions.
+- **Space admin → platform**: a "Contact platform support" panel in Space Settings where space admins raise issues to platform admins.
+- **Inboxes**: space admins see desk requests in a Support tab inside the space; platform admins see space complaints in a Support section of the platform dashboard. Each request has status (Open / In progress / Resolved), a reply thread, and timestamps.
+- Unread counts badge the relevant nav item so requests are not missed.
+
+
 
 ## Technical notes
 
 - New tables (migration, with grants + RLS scoped to space membership, following existing `private.is_space_member` policy pattern):
   - `saved_segments` — space_id, name, definition (jsonb filter set), created_by, timestamps.
   - `template_presets` — space_id, name, fields (jsonb), timestamps.
+  - `support_tickets` — space_id, event_id, desk_id, scope (`SPACE` for desk→admin, `PLATFORM` for admin→platform), subject, body, status, created_by (nullable for desk sessions), timestamps.
+  - `support_messages` — ticket_id, author_id, body, created_at, for the reply thread.
+  - RLS: space-scoped tickets readable/answerable by space members; platform-scoped tickets readable by platform admins via `private.is_platform_admin`; desk-session tickets created through a server function, not direct inserts.
 - New server functions in `src/lib/reports.functions.ts` / a new `segments.functions.ts`:
   - `listRegistrations` extended with a validated `filters` array (field_key, operator, values).
   - Custom-field filtering resolved server-side by intersecting `registration_field_values` matches per filter, then applying the resulting registration ids to the main query — keeps tenant isolation and RLS intact.
-  - `exportRegistrations` returns rows for CSV generation on the client.
+  - `exportRegistrations` returns rows for CSV/XLSX/PDF generation on the client.
   - `listSegments` / `saveSegment` / `deleteSegment`, all behind `requireSupabaseAuth` + `requireMembership`.
+- `support.functions.ts`: `createTicket` (auth or valid desk session), `listTickets`, `replyToTicket`, `setTicketStatus`, with membership / platform-admin checks.
+- Export libraries: `xlsx` for Excel, `jspdf` + `jspdf-autotable` for PDF; CSV generated in-app.
+
 - Template preset/copy functions added to `src/lib/events.functions.ts`, reusing existing field validation.
-- UI work in `s.$spaceId.attendees.tsx` (filter builder, segment chips, export button), `s.$spaceId.templates.tsx` (copy/preset), `s.$spaceId.reports.tsx` (filter-aware breakdowns), plus a shared `AttendeeFilters` component so attendees and reports share one filter model.
+- UI work in `s.$spaceId.attendees.tsx` (filter builder, segment chips, export menu), `s.$spaceId.templates.tsx` (copy/preset), `s.$spaceId.reports.tsx` (per-field report builder, cross-tabs, share + export), a new `s.$spaceId.support.tsx`, a Support section on `platform.tsx`, a help button on the registration desk route, plus a shared `AttendeeFilters` component and an `export` util shared by attendees and reports.
+
