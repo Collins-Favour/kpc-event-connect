@@ -359,6 +359,8 @@ function PlatformPage() {
         </div>
       </section>
 
+      <PlatformSupport />
+
       <Dialog open={Boolean(openSpace)} onOpenChange={() => setOpenSpace(null)}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
