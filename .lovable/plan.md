@@ -32,8 +32,19 @@ So "if I'm from org X I can always reuse it": on the Templates page, add
 - **Copy fields from another event** — pick an existing event in the space and clone its form fields into the current one.
 - **Save as space preset / apply preset** — a named field set stored at space level that can be applied to any new event, so field keys stay consistent and segments keep working across events.
 
-### 5. Reports page
-Breakdown charts respect the active filter/segment, so a saved segment can be viewed as counts by field value and exported.
+### 5. Reports on every field, easy to share, universal formats
+- Report builder on the Reports page: pick any field (built-in or custom) and get counts, percentages, and a chart — plus cross-tabs (e.g. Gender by Location, Ministry by Event).
+- Every report and attendee list respects the active filter/segment.
+- Export formats everywhere: CSV, Excel (.xlsx), PDF, and a clean print view. Charts included in the PDF.
+- Sharing: copy a link that reproduces the exact filter/segment for other admins in the space, plus one-click copy-to-clipboard of the summary table and email/WhatsApp share of the exported file.
+
+### 6. Help & support channels
+- **Desk help button**: a persistent "Need help?" button on the registration desk screen. Opens a short form (topic + message, desk/event auto-attached) that raises a request to the space's admins. Works for signed-in registrars and desk-token sessions.
+- **Space admin → platform**: a "Contact platform support" panel in Space Settings where space admins raise issues to platform admins.
+- **Inboxes**: space admins see desk requests in a Support tab inside the space; platform admins see space complaints in a Support section of the platform dashboard. Each request has status (Open / In progress / Resolved), a reply thread, and timestamps.
+- Unread counts badge the relevant nav item so requests are not missed.
+
+
 
 ## Technical notes
 
