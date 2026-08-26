@@ -8,6 +8,7 @@ import {
   submitRegistration,
 } from "@/lib/registration.functions";
 import { clearDeskSession, readDeskSession } from "@/lib/desk-session";
+import { DeskHelp } from "@/components/desk-help";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -168,6 +169,7 @@ function DeskPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <DeskHelp sessionId={sessionId} secret={secret} />
       <header className="border-b bg-sidebar text-sidebar-foreground">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-5 py-4">
           <div className="min-w-0">

@@ -451,3 +451,165 @@ export const revokeDeskToken = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+/* ---------------------------- template presets --------------------------- */
+
+/** A reusable set of form fields saved at space level. */
+const presetFieldSchema = z.object({
+  label: z.string().trim().min(1).max(80),
+  field_key: z.string().trim().regex(/^[a-z][a-z0-9_]{1,40}$/),
+  field_type: z.enum([
+    "TEXT",
+    "NUMBER",
+    "EMAIL",
+    "PHONE",
+    "DATE",
+    "SELECT",
+    "MULTISELECT",
+    "CHECKBOX",
+    "RADIO",
+    "BOOLEAN",
+  ]),
+  required: z.boolean().default(false),
+  options: z.array(z.string()).default([]),
+  help_text: z.string().nullable().optional(),
+});
+
+export const listTemplatePresets = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => spaceIdSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await requireMembership(context.supabase, context.userId, data.spaceId);
+    const { data: rows } = await context.supabase
+      .from("template_presets")
+      .select("id, name, fields, created_at")
+      .eq("space_id", data.spaceId)
+      .order("created_at", { ascending: true });
+    return rows ?? [];
+  });
+
+export const saveTemplatePreset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    spaceIdSchema
+      .extend({
+        name: z.string().trim().min(1, "Name this preset").max(60),
+        templateId: z.string().uuid(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireMembership(context.supabase, context.userId, data.spaceId);
+    const { data: fields } = await context.supabase
+      .from("registration_template_fields")
+      .select("label, field_key, field_type, required, options, help_text, is_primary")
+      .eq("template_id", data.templateId)
+      .eq("space_id", data.spaceId)
+      .order("display_order");
+
+    const custom = (fields ?? []).filter((field) => !field.is_primary);
+    if (custom.length === 0) throw new HttpError("Add a custom field before saving a preset.", 400);
+
+    const { error } = await context.supabase.from("template_presets").insert({
+      space_id: data.spaceId,
+      name: data.name,
+      fields: custom as unknown as never,
+      created_by: context.userId,
+    });
+    if (error) throw new HttpError("Could not save this preset.", 500);
+    return { ok: true };
+  });
+
+export const deleteTemplatePreset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => spaceIdSchema.extend({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await requireMembership(context.supabase, context.userId, data.spaceId);
+    await context.supabase
+      .from("template_presets")
+      .delete()
+      .eq("id", data.id)
+      .eq("space_id", data.spaceId);
+    return { ok: true };
+  });
+
+/** Copy custom fields into a template, from a preset or from another event. */
+export const applyTemplateFields = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    spaceIdSchema
+      .extend({
+        templateId: z.string().uuid(),
+        presetId: z.string().uuid().optional(),
+        fromEventId: z.string().uuid().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireMembership(context.supabase, context.userId, data.spaceId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let source: z.infer<typeof presetFieldSchema>[] = [];
+    if (data.presetId) {
+      const { data: preset } = await context.supabase
+        .from("template_presets")
+        .select("fields")
+        .eq("id", data.presetId)
+        .eq("space_id", data.spaceId)
+        .maybeSingle();
+      if (!preset) throw new HttpError("Preset not found.", 404);
+      source = z.array(presetFieldSchema).parse(preset.fields);
+    } else if (data.fromEventId) {
+      const { data: template } = await context.supabase
+        .from("registration_templates")
+        .select("id")
+        .eq("event_id", data.fromEventId)
+        .eq("space_id", data.spaceId)
+        .maybeSingle();
+      if (!template) throw new HttpError("That event has no form yet.", 404);
+      const { data: fields } = await context.supabase
+        .from("registration_template_fields")
+        .select("label, field_key, field_type, required, options, help_text, is_primary")
+        .eq("template_id", template.id)
+        .order("display_order");
+      source = z
+        .array(presetFieldSchema)
+        .parse((fields ?? []).filter((field) => !field.is_primary));
+    } else {
+      throw new HttpError("Choose a preset or an event to copy from.", 400);
+    }
+
+    const { data: existing } = await supabaseAdmin
+      .from("registration_template_fields")
+      .select("field_key, display_order")
+      .eq("template_id", data.templateId);
+    const taken = new Set((existing ?? []).map((field) => field.field_key));
+    let order = (existing ?? []).length;
+
+    const rows = source
+      .filter((field) => !taken.has(field.field_key))
+      .map((field) => ({
+        space_id: data.spaceId,
+        template_id: data.templateId,
+        label: field.label,
+        field_key: field.field_key,
+        field_type: field.field_type,
+        required: field.required,
+        options: field.options as unknown as never,
+        help_text: field.help_text ?? null,
+        display_order: order++,
+      }));
+
+    if (rows.length === 0) return { added: 0 };
+    const { error } = await supabaseAdmin.from("registration_template_fields").insert(rows);
+    if (error) throw new HttpError("Could not copy those fields.", 500);
+    await writeAudit(supabaseAdmin, {
+      space_id: data.spaceId,
+      actor_id: context.userId,
+      action: "TEMPLATE_FIELDS_COPIED",
+      entity_type: "template",
+      entity_id: data.templateId,
+      description: `${rows.length} field(s)`,
+    });
+    return { added: rows.length };
+  });
