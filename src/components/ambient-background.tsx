@@ -4,7 +4,7 @@
  */
 export function AmbientBackground() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <div className="ambient-grid absolute inset-0 opacity-60" />
       <div className="ambient-drift-a absolute -left-32 -top-32 size-[28rem] rounded-full bg-primary/20 blur-3xl" />
       <div className="ambient-drift-b absolute -right-40 top-1/4 size-[32rem] rounded-full bg-success/20 blur-3xl" />
