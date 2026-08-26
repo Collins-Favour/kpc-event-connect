@@ -248,6 +248,26 @@ function DeskPage() {
                         />
                       )}
 
+                      {field.field_type === "BOOLEAN" && (
+                        <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby={field.id}>
+                          {["Yes", "No"].map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              aria-pressed={value === option}
+                              onClick={() => setValue(field.field_key, option)}
+                              className={`h-12 rounded-lg border text-base font-medium transition-colors duration-200 ${
+                                value === option
+                                  ? "border-accent bg-accent text-accent-foreground"
+                                  : "hover:bg-muted"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
                       {field.field_type === "CHECKBOX" && (
                         <label className="flex h-12 items-center gap-3 rounded-lg border px-4">
                           <Checkbox
@@ -260,6 +280,7 @@ function DeskPage() {
                           <span className="text-sm">Yes</span>
                         </label>
                       )}
+
 
                       {field.field_type === "RADIO" && (
                         <RadioGroup
