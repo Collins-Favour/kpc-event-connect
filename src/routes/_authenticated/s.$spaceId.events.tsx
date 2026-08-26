@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/error-message";
 import { Loader2, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/events")({
@@ -74,7 +75,7 @@ function EventsPage() {
       queryClient.invalidateQueries({ queryKey: ["events", spaceId] });
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not save the event."),
+      toast.error(friendlyError(error, "Could not save the event.")),
   });
 
   function openNew() {

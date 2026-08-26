@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useSession } from "@/lib/use-session";
+import { AmbientBackground } from "@/components/ambient-background";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +46,7 @@ function LoginPage() {
   async function handleGoogle() {
     setGoogleBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/login`,
     });
     if (result.error) {
       setGoogleBusy(false);
@@ -84,8 +85,9 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <div className="w-full max-w-sm">
+    <main className="relative flex min-h-screen items-center justify-center px-6 py-12">
+      <AmbientBackground />
+      <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link to="/" className="text-sm font-semibold tracking-tight">
             Registry

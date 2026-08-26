@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Platform design system — emerald surfaces, warm parchment canvas,
- * antique gold used strictly as an accent. Sora display + Manrope body.
+ * Platform design system — deep navy surfaces, soft light canvas,
+ * tiger orange used strictly as an accent. Sora display + Manrope body.
  * All colors are semantic tokens. Never hardcode colors in components.
  */
 
@@ -59,82 +59,82 @@
 
 :root {
   --radius: 1rem;
-  --emerald: #064e3b;
-  --emerald-soft: #0d7a5f;
-  --gold: #c9a84c;
-  --background: #f5f0e0;
-  --foreground: #0f2b22;
+  --navy: #0b1f3a;
+  --navy-soft: #122b49;
+  --orange: #f28c28;
+  --background: #f7f5f0;
+  --foreground: #101c2b;
   --card: #ffffff;
-  --card-foreground: #0f2b22;
+  --card-foreground: #101c2b;
   --popover: #ffffff;
-  --popover-foreground: #0f2b22;
-  --primary: #064e3b;
-  --primary-foreground: #f5f0e0;
-  --secondary: #ece6d4;
-  --secondary-foreground: #064e3b;
-  --muted: #ece6d4;
-  --muted-foreground: #557165;
-  --accent: #c9a84c;
-  --accent-foreground: #1d1708;
+  --popover-foreground: #101c2b;
+  --primary: #0b1f3a;
+  --primary-foreground: #f7f5f0;
+  --secondary: #eef1f4;
+  --secondary-foreground: #0b1f3a;
+  --muted: #eef1f4;
+  --muted-foreground: #5b6a7d;
+  --accent: #f28c28;
+  --accent-foreground: #21160a;
   --destructive: #b42318;
   --destructive-foreground: #ffffff;
-  --success: #0d7a5f;
+  --success: #1f5f9e;
   --success-foreground: #ffffff;
-  --border: #ded7c2;
-  --input: #d5ceb8;
-  --ring: #0d7a5f;
-  --chart-1: #064e3b;
-  --chart-2: #0d7a5f;
-  --chart-3: #c9a84c;
-  --chart-4: #7fb6a1;
-  --chart-5: #9c8c5f;
-  --sidebar: #064e3b;
-  --sidebar-foreground: #e7f0ea;
-  --sidebar-primary: #c9a84c;
-  --sidebar-primary-foreground: #1d1708;
-  --sidebar-accent: #0d7a5f;
+  --border: #dde3ea;
+  --input: #cfd8e3;
+  --ring: #1f5f9e;
+  --chart-1: #0b1f3a;
+  --chart-2: #1f5f9e;
+  --chart-3: #f28c28;
+  --chart-4: #7ea8cc;
+  --chart-5: #9aa7b6;
+  --sidebar: #0b1f3a;
+  --sidebar-foreground: #e6ecf3;
+  --sidebar-primary: #f28c28;
+  --sidebar-primary-foreground: #21160a;
+  --sidebar-accent: #122b49;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #0f5d47;
-  --sidebar-ring: #c9a84c;
+  --sidebar-border: #17355a;
+  --sidebar-ring: #f28c28;
   --shadow-elegant: 0 24px 60px -30px color-mix(in oklab, var(--primary) 55%, transparent);
-  --gradient-emerald: linear-gradient(135deg, #064e3b 0%, #0d7a5f 100%);
+  --gradient-brand: linear-gradient(135deg, #0b1f3a 0%, #1f5f9e 100%);
 }
 
 .dark {
-  --background: #051b15;
-  --foreground: #e7f0ea;
-  --card: #08281f;
-  --card-foreground: #e7f0ea;
-  --popover: #08281f;
-  --popover-foreground: #e7f0ea;
-  --primary: #c9a84c;
-  --primary-foreground: #1d1708;
-  --secondary: #0c3428;
-  --secondary-foreground: #e7f0ea;
-  --muted: #0c3428;
-  --muted-foreground: #94b3a5;
-  --accent: #c9a84c;
-  --accent-foreground: #1d1708;
+  --background: #060f1c;
+  --foreground: #e6ecf3;
+  --card: #0b1f3a;
+  --card-foreground: #e6ecf3;
+  --popover: #0b1f3a;
+  --popover-foreground: #e6ecf3;
+  --primary: #f28c28;
+  --primary-foreground: #21160a;
+  --secondary: #122b49;
+  --secondary-foreground: #e6ecf3;
+  --muted: #122b49;
+  --muted-foreground: #9fb2c7;
+  --accent: #f28c28;
+  --accent-foreground: #21160a;
   --destructive: #f04438;
   --destructive-foreground: #ffffff;
-  --success: #32d583;
-  --success-foreground: #052e1d;
-  --border: #124636;
-  --input: #175643;
-  --ring: #c9a84c;
-  --chart-1: #c9a84c;
-  --chart-2: #32d583;
-  --chart-3: #7fb6a1;
-  --chart-4: #e0c777;
-  --chart-5: #94b3a5;
-  --sidebar: #04150f;
-  --sidebar-foreground: #e7f0ea;
-  --sidebar-primary: #c9a84c;
-  --sidebar-primary-foreground: #1d1708;
-  --sidebar-accent: #0c3428;
-  --sidebar-accent-foreground: #e7f0ea;
-  --sidebar-border: #124636;
-  --sidebar-ring: #c9a84c;
+  --success: #4a9ee0;
+  --success-foreground: #04203a;
+  --border: #17355a;
+  --input: #1c4270;
+  --ring: #f28c28;
+  --chart-1: #f28c28;
+  --chart-2: #4a9ee0;
+  --chart-3: #7ea8cc;
+  --chart-4: #ffbe7a;
+  --chart-5: #9fb2c7;
+  --sidebar: #050d18;
+  --sidebar-foreground: #e6ecf3;
+  --sidebar-primary: #f28c28;
+  --sidebar-primary-foreground: #21160a;
+  --sidebar-accent: #122b49;
+  --sidebar-accent-foreground: #e6ecf3;
+  --sidebar-border: #17355a;
+  --sidebar-ring: #f28c28;
 }
 
 @layer base {
@@ -218,8 +218,41 @@
   }
 }
 
-@utility gradient-emerald {
-  background-image: var(--gradient-emerald);
+@utility gradient-brand {
+  background-image: var(--gradient-brand);
+}
+
+@keyframes drift-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, -3%, 0) scale(1.08); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes drift-b {
+  0% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50% { transform: translate3d(-5%, 4%, 0) scale(0.95); }
+  100% { transform: translate3d(0, 0, 0) scale(1.05); }
+}
+
+@keyframes grid-pan {
+  from { background-position: 0 0; }
+  to { background-position: 60px 60px; }
+}
+
+@utility ambient-drift-a {
+  animation: drift-a 22s ease-in-out infinite;
+}
+
+@utility ambient-drift-b {
+  animation: drift-b 28s ease-in-out infinite;
+}
+
+@utility ambient-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--primary) 16%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 16%, transparent) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: grid-pan 30s linear infinite;
 }
 
 @utility stagger-* {

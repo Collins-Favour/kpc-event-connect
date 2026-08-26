@@ -24,7 +24,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/error-message";
 import { Copy, KeyRound, Loader2, Plus } from "lucide-react";
+
+
+/** Falls back to a slug-style code derived from the desk name. */
+function deskCodeFromName(name: string) {
+  const base = name
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 20);
+  return base.length >= 2 ? base : "DESK-01";
+}
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/desks")({
   head: () => ({
@@ -70,7 +83,8 @@ function DesksPage() {
           spaceId,
           eventId: activeEvent!,
           name: form.name,
-          code: form.code,
+          code: form.code.trim() || deskCodeFromName(form.name),
+
           location: form.location,
           status: "ACTIVE",
         },
@@ -82,7 +96,7 @@ function DesksPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not create the desk."),
+      toast.error(friendlyError(error, "Could not create the desk.")),
   });
 
   const issue = useMutation({
@@ -92,7 +106,7 @@ function DesksPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not issue a token."),
+      toast.error(friendlyError(error, "Could not issue a token.")),
   });
 
   const revoke = useMutation({
@@ -241,7 +255,7 @@ function DesksPage() {
               <Label htmlFor="desk-code">Code</Label>
               <Input
                 id="desk-code"
-                placeholder="DESK-01"
+                placeholder="Optional — e.g. DESK-01"
                 value={form.code}
                 onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
               />

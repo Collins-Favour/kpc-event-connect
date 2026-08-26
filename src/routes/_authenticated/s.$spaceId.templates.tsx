@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/error-message";
 import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/templates")({
@@ -116,7 +117,7 @@ function TemplatesPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not save the field."),
+      toast.error(friendlyError(error, "Could not save the field.")),
   });
 
   const remove = useMutation({
@@ -126,7 +127,7 @@ function TemplatesPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not remove the field."),
+      toast.error(friendlyError(error, "Could not remove the field.")),
   });
 
   const reorder = useMutation({

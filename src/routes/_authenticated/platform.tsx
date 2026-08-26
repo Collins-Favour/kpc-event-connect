@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/error-message";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/platform")({
@@ -36,7 +37,7 @@ function PlatformPage() {
       queryClient.invalidateQueries({ queryKey: ["platform-spaces"] });
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "You are not a platform administrator."),
+      toast.error(friendlyError(error, "You are not a platform administrator.")),
   });
 
   return (

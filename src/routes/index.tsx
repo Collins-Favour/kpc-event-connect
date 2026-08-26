@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { AmbientBackground } from "@/components/ambient-background";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, KeyRound, LayoutGrid, ShieldCheck, Timer } from "lucide-react";
 
@@ -23,8 +24,9 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <main className="min-h-screen bg-background px-6 py-10 lg:py-16">
-      <div className="mx-auto w-full max-w-6xl">
+    <main className="relative min-h-screen px-6 py-10 lg:py-16">
+      <AmbientBackground />
+      <div className="relative z-10 mx-auto w-full max-w-6xl">
         <nav className="animate-fade flex items-center justify-between">
           <span className="font-display text-2xl font-bold tracking-tight text-primary">Registry</span>
           <Link
