@@ -19,7 +19,7 @@ import {
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2, Home, Loader2, UserPlus, Users } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/desk/register")({
+export const Route = createFileRoute("/_authenticated/register")({
   head: () => ({
     meta: [
       { title: "Register attendee — KPC" },

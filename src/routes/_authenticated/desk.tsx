@@ -82,7 +82,7 @@ function DeskHome() {
                   )}
                 </div>
                 <Button asChild className="h-16 w-full text-base font-semibold">
-                  <Link to="/desk/register">
+                  <Link to="/register">
                     <UserPlus className="mr-2 size-5" /> REGISTER ATTENDEE
                   </Link>
                 </Button>
