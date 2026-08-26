@@ -163,9 +163,9 @@ function PlatformPage() {
           <Card key={stat.label} className="animate-rise">
             <CardContent className="py-4">
               <p className="text-xs text-muted-foreground">{stat.label}</p>
-              <p className="mt-1 text-2xl font-semibold">
+              <div className="mt-1 text-2xl font-semibold">
                 {overview.isLoading ? <Skeleton className="h-7 w-12" /> : (stat.value ?? 0)}
-              </p>
+              </div>
             </CardContent>
           </Card>
         ))}
