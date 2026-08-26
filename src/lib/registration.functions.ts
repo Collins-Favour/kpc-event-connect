@@ -180,9 +180,13 @@ export const submitRegistration = createServerFn({ method: "POST" })
         throw new HttpError(`${field.label} must be a number.`, 400);
       }
       const options = Array.isArray(field.options) ? (field.options as string[]) : [];
+      if (value && field.field_type === "BOOLEAN" && !["Yes", "No"].includes(value)) {
+        throw new HttpError(`${field.label} must be answered Yes or No.`, 400);
+      }
       if (value && options.length > 0 && ["SELECT", "RADIO"].includes(field.field_type)) {
         if (!options.includes(value)) throw new HttpError(`${field.label} has an invalid choice.`, 400);
       }
+
       clean[field.field_key] = value;
     }
 
