@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/error-message";
 import { Copy, Loader2, UserPlus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/members")({
@@ -76,7 +77,7 @@ function MembersPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not create the invitation."),
+      toast.error(friendlyError(error, "Could not create the invitation.")),
   });
 
   const changeRole = useMutation({
@@ -86,7 +87,7 @@ function MembersPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not update the role."),
+      toast.error(friendlyError(error, "Could not update the role.")),
   });
 
   const remove = useMutation({
@@ -96,7 +97,7 @@ function MembersPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not remove the member."),
+      toast.error(friendlyError(error, "Could not remove the member.")),
   });
 
   const revoke = useMutation({

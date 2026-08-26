@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/error-message";
 import { Copy, KeyRound, Loader2, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/desks")({
@@ -82,7 +83,7 @@ function DesksPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not create the desk."),
+      toast.error(friendlyError(error, "Could not create the desk.")),
   });
 
   const issue = useMutation({
@@ -92,7 +93,7 @@ function DesksPage() {
       invalidate();
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not issue a token."),
+      toast.error(friendlyError(error, "Could not issue a token.")),
   });
 
   const revoke = useMutation({

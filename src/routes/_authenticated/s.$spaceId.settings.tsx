@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/error-message";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/settings")({
@@ -51,7 +52,7 @@ function SettingsPage() {
       queryClient.invalidateQueries({ queryKey: ["my-spaces"] });
     },
     onError: (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Could not save the settings."),
+      toast.error(friendlyError(error, "Could not save the settings.")),
   });
 
   const canEdit = space.data?.role === "SPACE_SUPER_ADMIN";
