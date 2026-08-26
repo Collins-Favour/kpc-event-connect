@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Registry — Event Registration & Attendance Platform" },
+      { title: "Leepek — Event Registration & Attendance Platform" },
       {
         name: "description",
         content:
           "Multi-tenant event registration and attendance management for organizations, teams and communities.",
       },
-      { property: "og:title", content: "Registry — Event Registration & Attendance Platform" },
+      { property: "og:title", content: "Leepek — Event Registration & Attendance Platform" },
       {
         property: "og:description",
         content:

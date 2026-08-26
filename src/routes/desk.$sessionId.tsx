@@ -30,9 +30,9 @@ export const Route = createFileRoute("/desk/$sessionId")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Registration desk — Registry" },
+      { title: "Registration desk — Leepek" },
       { name: "description", content: "Register attendees at your event registration desk." },
-      { property: "og:title", content: "Registration desk — Registry" },
+      { property: "og:title", content: "Registration desk — Leepek" },
       { property: "og:description", content: "Register attendees at your event desk." },
     ],
   }),

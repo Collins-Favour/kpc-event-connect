@@ -12,13 +12,13 @@ import { Loader2 } from "lucide-react";
 export const Route = createFileRoute("/join")({
   head: () => ({
     meta: [
-      { title: "Join a registration desk — Registry" },
+      { title: "Join a registration desk — Leepek" },
       {
         name: "description",
         content:
           "Enter your desk token to start registering attendees. The token identifies your workspace, event and desk.",
       },
-      { property: "og:title", content: "Join a registration desk — Registry" },
+      { property: "og:title", content: "Join a registration desk — Leepek" },
       {
         property: "og:description",
         content: "Enter a desk token to start registering attendees at your event.",
@@ -54,7 +54,7 @@ function JoinPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link to="/" className="text-sm font-semibold tracking-tight">
-            Registry
+            Leepek
           </Link>
           <h1 className="mt-6 text-2xl">Join a desk</h1>
           <p className="mt-2 text-sm text-muted-foreground">

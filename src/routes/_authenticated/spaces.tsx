@@ -12,9 +12,9 @@ import { Plus, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/spaces")({
   head: () => ({
     meta: [
-      { title: "Your spaces — Registry" },
+      { title: "Your spaces — Leepek" },
       { name: "description", content: "Switch between the event registration workspaces you belong to." },
-      { property: "og:title", content: "Your spaces — Registry" },
+      { property: "og:title", content: "Your spaces — Leepek" },
       { property: "og:description", content: "Switch between your event registration workspaces." },
     ],
   }),
@@ -36,7 +36,7 @@ function SpacesPage() {
   return (
     <main className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-4xl items-center justify-between px-6 py-6">
-        <span className="text-sm font-semibold tracking-tight">Registry</span>
+        <span className="text-sm font-semibold tracking-tight">Leepek</span>
         <div className="flex items-center gap-2">
           {me.data?.isPlatformAdmin && (
             <Button asChild variant="ghost" size="sm">

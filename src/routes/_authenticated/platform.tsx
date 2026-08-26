@@ -13,9 +13,9 @@ import { ArrowLeft, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/platform")({
   head: () => ({
     meta: [
-      { title: "Platform administration — Registry" },
+      { title: "Platform administration — Leepek" },
       { name: "description", content: "Oversee every space on the platform, review activity and suspend abuse." },
-      { property: "og:title", content: "Platform administration — Registry" },
+      { property: "og:title", content: "Platform administration — Leepek" },
       { property: "og:description", content: "Oversee every space on the platform." },
     ],
   }),

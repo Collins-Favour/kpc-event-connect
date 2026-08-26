@@ -12,9 +12,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/create")({
   head: () => ({
     meta: [
-      { title: "Create a space — Registry" },
+      { title: "Create a space — Leepek" },
       { name: "description", content: "Create a workspace for your events, registration desks and attendance data." },
-      { property: "og:title", content: "Create a space — Registry" },
+      { property: "og:title", content: "Create a space — Leepek" },
       { property: "og:description", content: "Create a workspace for your events and registration desks." },
     ],
   }),

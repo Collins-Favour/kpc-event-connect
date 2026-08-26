@@ -32,9 +32,9 @@ import { Loader2, Plus } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/s/$spaceId/events")({
   head: () => ({
     meta: [
-      { title: "Events — Registry" },
+      { title: "Events — Leepek" },
       { name: "description", content: "Create and manage the events people register for in this space." },
-      { property: "og:title", content: "Events — Registry" },
+      { property: "og:title", content: "Events — Leepek" },
       { property: "og:description", content: "Create and manage your registration events." },
     ],
   }),

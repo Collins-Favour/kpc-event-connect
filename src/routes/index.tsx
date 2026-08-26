@@ -6,13 +6,13 @@ import { ArrowRight, KeyRound, LayoutGrid, ShieldCheck, Timer } from "lucide-rea
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Registry — Event Registration & Attendance Platform" },
+      { title: "Leepek — Event Registration & Attendance Platform" },
       {
         name: "description",
         content:
           "One workspace for events, registration desks and attendance data — for organizations, teams, schools, conferences and communities.",
       },
-      { property: "og:title", content: "Registry — Event Registration & Attendance Platform" },
+      { property: "og:title", content: "Leepek — Event Registration & Attendance Platform" },
       {
         property: "og:description",
         content: "Run registration desks, define your own forms and keep every workspace isolated.",
@@ -28,7 +28,7 @@ function Index() {
       <AmbientBackground />
       <div className="relative z-10 mx-auto w-full max-w-6xl">
         <nav className="animate-fade flex items-center justify-between">
-          <span className="font-display text-2xl font-bold tracking-tight text-primary">Registry</span>
+          <span className="font-display text-2xl font-bold tracking-tight text-primary">Leepek</span>
           <Link
             to="/login"
             className="text-sm font-semibold text-success transition-colors duration-200 hover:text-primary"
@@ -129,7 +129,7 @@ function Index() {
 
         <footer className="mt-16 text-center">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
-            Registry — working name for this platform
+            Leepek
           </p>
         </footer>
       </div>

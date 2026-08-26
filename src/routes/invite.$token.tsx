@@ -11,9 +11,9 @@ export const Route = createFileRoute("/invite/$token")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Accept your invitation — Registry" },
+      { title: "Accept your invitation — Leepek" },
       { name: "description", content: "Accept an invitation to join an event registration workspace." },
-      { property: "og:title", content: "Accept your invitation — Registry" },
+      { property: "og:title", content: "Accept your invitation — Leepek" },
       { property: "og:description", content: "Join an event registration workspace." },
     ],
   }),

@@ -20,9 +20,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/s/$spaceId/reports")({
   head: () => ({
     meta: [
-      { title: "Reports — Registry" },
+      { title: "Reports — Leepek" },
       { name: "description", content: "Attendance, desk, time and demographic reports with CSV export." },
-      { property: "og:title", content: "Reports — Registry" },
+      { property: "og:title", content: "Reports — Leepek" },
       { property: "og:description", content: "Attendance, desk and demographic reports with export." },
     ],
   }),
