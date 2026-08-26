@@ -43,6 +43,11 @@ function SpaceLayout() {
   const { spaceId } = Route.useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const sectionLabel = nav.find(
+    (item) =>
+      !("exact" in item && item.exact) && location.pathname.startsWith(item.to.replace("$spaceId", spaceId)),
+  )?.label;
+
   const spaceFn = useServerFn(getSpace);
   const listFn = useServerFn(listMySpaces);
 
