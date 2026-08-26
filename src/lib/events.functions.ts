@@ -155,6 +155,7 @@ const fieldSchema = spaceIdSchema.extend({
     "MULTISELECT",
     "CHECKBOX",
     "RADIO",
+    "BOOLEAN",
   ]),
   required: z.boolean().default(false),
   help_text: z.string().trim().max(160).optional().or(z.literal("")),
@@ -174,6 +175,9 @@ export const upsertTemplateField = createServerFn({ method: "POST" })
       throw new HttpError("This field type needs at least one option.", 400);
     }
 
+    // Yes/No fields always store the same two answers, whatever was sent.
+    const options = data.field_type === "BOOLEAN" ? ["Yes", "No"] : data.options;
+
     const payload = {
       space_id: data.spaceId,
       template_id: data.templateId,
@@ -182,9 +186,10 @@ export const upsertTemplateField = createServerFn({ method: "POST" })
       field_type: data.field_type,
       required: data.required,
       help_text: data.help_text || null,
-      options: data.options as unknown as never,
+      options: options as unknown as never,
       active: data.active,
     };
+
 
     if (data.id) {
       const { data: existing } = await supabaseAdmin
