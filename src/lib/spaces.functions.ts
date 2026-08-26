@@ -176,7 +176,14 @@ export const listMembers = createServerFn({ method: "GET" })
     const ids = (rawMembers ?? []).map((m) => m.user_id);
     const { data: profiles } = ids.length
       ? await supabaseAdmin.from("profiles").select("id, name, email, avatar_url").in("id", ids)
-      : { data: [] as { id: string; name: string; email: string | null; avatar_url: string | null }[] };
+      : {
+          data: [] as {
+            id: string;
+            name: string;
+            email: string | null;
+            avatar_url: string | null;
+          }[],
+        };
 
     const members = (rawMembers ?? []).map((member) => ({
       ...member,
@@ -343,9 +350,13 @@ export const acceptInvitation = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!invite) throw new HttpError("This invitation link is not valid.", 404);
-    if (invite.status !== "PENDING") throw new HttpError("This invitation is no longer active.", 409);
+    if (invite.status !== "PENDING")
+      throw new HttpError("This invitation is no longer active.", 409);
     if (new Date(invite.expires_at) < new Date()) {
-      await supabaseAdmin.from("space_invitations").update({ status: "EXPIRED" }).eq("id", invite.id);
+      await supabaseAdmin
+        .from("space_invitations")
+        .update({ status: "EXPIRED" })
+        .eq("id", invite.id);
       throw new HttpError("This invitation has expired.", 409);
     }
 
@@ -389,7 +400,11 @@ export const listAllSpaces = createServerFn({ method: "GET" })
     ]);
     return {
       spaces: spaces ?? [],
-      totals: { registrations: registrations ?? 0, users: users ?? 0, spaces: (spaces ?? []).length },
+      totals: {
+        registrations: registrations ?? 0,
+        users: users ?? 0,
+        spaces: (spaces ?? []).length,
+      },
     };
   });
 
@@ -447,7 +462,9 @@ export const getPlatformOverview = createServerFn({ method: "GET" })
         registrations: registrations ?? 0,
         last30: (recentRegistrations ?? []).length,
       },
-      trend: [...perDay.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, count]) => ({ day, count })),
+      trend: [...perDay.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([day, count]) => ({ day, count })),
       spaces: (spaces ?? []).map((space) => ({
         ...space,
         registrations_last30: perSpace.get(space.id) ?? 0,
@@ -463,28 +480,33 @@ export const getSpaceDetailForPlatform = createServerFn({ method: "GET" })
     await requirePlatformAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [{ data: space }, { data: events }, { count: desks }, { count: registrations }, { data: members }] =
-      await Promise.all([
-        supabaseAdmin.from("spaces").select("*").eq("id", data.spaceId).maybeSingle(),
-        supabaseAdmin
-          .from("events")
-          .select("id, name, status, start_date, registration_counter")
-          .eq("space_id", data.spaceId)
-          .order("created_at", { ascending: false })
-          .limit(50),
-        supabaseAdmin
-          .from("registration_desks")
-          .select("id", { count: "exact", head: true })
-          .eq("space_id", data.spaceId),
-        supabaseAdmin
-          .from("registrations")
-          .select("id", { count: "exact", head: true })
-          .eq("space_id", data.spaceId),
-        supabaseAdmin
-          .from("space_members")
-          .select("id, user_id, role, status")
-          .eq("space_id", data.spaceId),
-      ]);
+    const [
+      { data: space },
+      { data: events },
+      { count: desks },
+      { count: registrations },
+      { data: members },
+    ] = await Promise.all([
+      supabaseAdmin.from("spaces").select("*").eq("id", data.spaceId).maybeSingle(),
+      supabaseAdmin
+        .from("events")
+        .select("id, name, status, start_date, registration_counter")
+        .eq("space_id", data.spaceId)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabaseAdmin
+        .from("registration_desks")
+        .select("id", { count: "exact", head: true })
+        .eq("space_id", data.spaceId),
+      supabaseAdmin
+        .from("registrations")
+        .select("id", { count: "exact", head: true })
+        .eq("space_id", data.spaceId),
+      supabaseAdmin
+        .from("space_members")
+        .select("id, user_id, role, status")
+        .eq("space_id", data.spaceId),
+    ]);
     if (!space) throw new HttpError("Space not found.", 404);
 
     const ids = (members ?? []).map((m) => m.user_id);
@@ -495,7 +517,11 @@ export const getSpaceDetailForPlatform = createServerFn({ method: "GET" })
     return {
       space,
       events: events ?? [],
-      counts: { desks: desks ?? 0, registrations: registrations ?? 0, members: (members ?? []).length },
+      counts: {
+        desks: desks ?? 0,
+        registrations: registrations ?? 0,
+        members: (members ?? []).length,
+      },
       members: (members ?? []).map((member) => ({
         ...member,
         profile: (profiles ?? []).find((p) => p.id === member.user_id) ?? null,
@@ -602,4 +628,3 @@ export const setSpaceStatus = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
-

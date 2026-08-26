@@ -29,7 +29,10 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/attendees")({
   head: () => ({
     meta: [
       { title: "Attendees — Leepek" },
-      { name: "description", content: "Search and filter everyone registered across your events and desks." },
+      {
+        name: "description",
+        content: "Search and filter everyone registered across your events and desks.",
+      },
       { property: "og:title", content: "Attendees — Leepek" },
       { property: "og:description", content: "Search and filter your event registrations." },
     ],
@@ -42,7 +45,10 @@ function AttendeesPage() {
   const listFn = useServerFn(listRegistrations);
   const eventsFn = useServerFn(listEvents);
 
-  const events = useQuery({ queryKey: ["events", spaceId], queryFn: () => eventsFn({ data: { spaceId } }) });
+  const events = useQuery({
+    queryKey: ["events", spaceId],
+    queryFn: () => eventsFn({ data: { spaceId } }),
+  });
   const [search, setSearch] = useState("");
   const [eventId, setEventId] = useState<string>("all");
   const [from, setFrom] = useState("");
@@ -73,7 +79,9 @@ function AttendeesPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl">Attendees</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{total} registration{total === 1 ? "" : "s"}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {total} registration{total === 1 ? "" : "s"}
+        </p>
       </header>
 
       <Card>
@@ -106,8 +114,18 @@ function AttendeesPage() {
               ))}
             </SelectContent>
           </Select>
-          <Input type="date" className="h-10 w-40" value={from} onChange={(e) => setFrom(e.target.value)} />
-          <Input type="date" className="h-10 w-40" value={to} onChange={(e) => setTo(e.target.value)} />
+          <Input
+            type="date"
+            className="h-10 w-40"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
+          <Input
+            type="date"
+            className="h-10 w-40"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+          />
         </CardContent>
       </Card>
 
@@ -149,7 +167,10 @@ function AttendeesPage() {
                   ))}
                   {rows.data?.rows.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} className="py-12 text-center text-sm text-muted-foreground">
+                      <TableCell
+                        colSpan={7}
+                        className="py-12 text-center text-sm text-muted-foreground"
+                      >
                         No registrations match these filters.
                       </TableCell>
                     </TableRow>

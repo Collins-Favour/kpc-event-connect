@@ -96,7 +96,6 @@ export async function requirePlatformAdmin(supabase: Client, userId: string): Pr
 }
 
 export async function writeAudit(
-
   admin: Client,
   entry: {
     space_id: string | null;
@@ -120,8 +119,26 @@ export async function writeAudit(
 }
 
 export const DEFAULT_TEMPLATE_FIELDS = [
-  { label: "Full name", field_key: "full_name", field_type: "TEXT", required: true, is_primary: true },
-  { label: "Phone number", field_key: "phone", field_type: "PHONE", required: false, is_primary: true },
+  {
+    label: "Full name",
+    field_key: "full_name",
+    field_type: "TEXT",
+    required: true,
+    is_primary: true,
+  },
+  {
+    label: "Phone number",
+    field_key: "phone",
+    field_type: "PHONE",
+    required: false,
+    is_primary: true,
+  },
   { label: "Email", field_key: "email", field_type: "EMAIL", required: false, is_primary: true },
-  { label: "Location", field_key: "location", field_type: "TEXT", required: false, is_primary: true },
+  {
+    label: "Location",
+    field_key: "location",
+    field_type: "TEXT",
+    required: false,
+    is_primary: true,
+  },
 ] as const;

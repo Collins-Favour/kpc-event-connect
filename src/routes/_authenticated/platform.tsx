@@ -39,7 +39,10 @@ export const Route = createFileRoute("/_authenticated/platform")({
   head: () => ({
     meta: [
       { title: "Platform administration — Leepek" },
-      { name: "description", content: "Oversee every space on the platform, review activity and suspend abuse." },
+      {
+        name: "description",
+        content: "Oversee every space on the platform, review activity and suspend abuse.",
+      },
       { property: "og:title", content: "Platform administration — Leepek" },
       { property: "og:description", content: "Oversee every space on the platform." },
     ],
@@ -58,8 +61,16 @@ function PlatformPage() {
   const removeAdminFn = useServerFn(removePlatformAdmin);
   const detailFn = useServerFn(getSpaceDetailForPlatform);
 
-  const overview = useQuery({ queryKey: ["platform-overview"], queryFn: () => overviewFn(), retry: false });
-  const admins = useQuery({ queryKey: ["platform-admins"], queryFn: () => adminsFn(), retry: false });
+  const overview = useQuery({
+    queryKey: ["platform-overview"],
+    queryFn: () => overviewFn(),
+    retry: false,
+  });
+  const admins = useQuery({
+    queryKey: ["platform-admins"],
+    queryFn: () => adminsFn(),
+    retry: false,
+  });
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>("ALL");
@@ -89,7 +100,8 @@ function PlatformPage() {
       setAdminEmail("");
       queryClient.invalidateQueries({ queryKey: ["platform-admins"] });
     },
-    onError: (error: unknown) => toast.error(friendlyError(error, "Could not add that administrator.")),
+    onError: (error: unknown) =>
+      toast.error(friendlyError(error, "Could not add that administrator.")),
   });
 
   const removeAdmin = useMutation({
@@ -98,7 +110,8 @@ function PlatformPage() {
       toast.success("Platform administrator removed");
       queryClient.invalidateQueries({ queryKey: ["platform-admins"] });
     },
-    onError: (error: unknown) => toast.error(friendlyError(error, "Could not remove that administrator.")),
+    onError: (error: unknown) =>
+      toast.error(friendlyError(error, "Could not remove that administrator.")),
   });
 
   const spaces = (overview.data?.spaces ?? []).filter((space) => {
@@ -172,7 +185,9 @@ function PlatformPage() {
                 />
               ))}
               {(overview.data?.trend ?? []).length === 0 && (
-                <p className="text-sm text-muted-foreground">No registrations in this period yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No registrations in this period yet.
+                </p>
               )}
             </div>
           </CardContent>
@@ -215,7 +230,9 @@ function PlatformPage() {
                     {space.registrations_last30} registrations in 30 days
                   </p>
                 </div>
-                <Badge variant={space.status === "ACTIVE" ? "secondary" : "outline"}>{space.status}</Badge>
+                <Badge variant={space.status === "ACTIVE" ? "secondary" : "outline"}>
+                  {space.status}
+                </Badge>
                 <Button size="sm" variant="ghost" onClick={() => setOpenSpace(space.id)}>
                   View
                 </Button>
@@ -223,7 +240,9 @@ function PlatformPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setStatusMutation.mutate({ spaceId: space.id, status: "SUSPENDED" })}
+                    onClick={() =>
+                      setStatusMutation.mutate({ spaceId: space.id, status: "SUSPENDED" })
+                    }
                   >
                     Suspend
                   </Button>
@@ -231,7 +250,9 @@ function PlatformPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => setStatusMutation.mutate({ spaceId: space.id, status: "ACTIVE" })}
+                    onClick={() =>
+                      setStatusMutation.mutate({ spaceId: space.id, status: "ACTIVE" })
+                    }
                   >
                     Reactivate
                   </Button>
@@ -240,7 +261,9 @@ function PlatformPage() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => setStatusMutation.mutate({ spaceId: space.id, status: "ARCHIVED" })}
+                    onClick={() =>
+                      setStatusMutation.mutate({ spaceId: space.id, status: "ARCHIVED" })
+                    }
                   >
                     Archive
                   </Button>
@@ -274,7 +297,11 @@ function PlatformPage() {
                   {admin.isSelf ? (
                     <Badge variant="secondary">You</Badge>
                   ) : (
-                    <Button size="sm" variant="ghost" onClick={() => removeAdmin.mutate(admin.user_id)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeAdmin.mutate(admin.user_id)}
+                    >
                       Remove
                     </Button>
                   )}
@@ -290,7 +317,10 @@ function PlatformPage() {
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
                   />
-                  <Button onClick={() => addAdmin.mutate()} disabled={addAdmin.isPending || !adminEmail}>
+                  <Button
+                    onClick={() => addAdmin.mutate()}
+                    disabled={addAdmin.isPending || !adminEmail}
+                  >
                     {addAdmin.isPending ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
@@ -320,7 +350,9 @@ function PlatformPage() {
                 </div>
               ))}
               {(overview.data?.audit ?? []).length === 0 && (
-                <p className="px-5 py-8 text-center text-sm text-muted-foreground">Nothing logged yet.</p>
+                <p className="px-5 py-8 text-center text-sm text-muted-foreground">
+                  Nothing logged yet.
+                </p>
               )}
             </CardContent>
           </Card>
@@ -370,7 +402,9 @@ function PlatformPage() {
                 <ul className="mt-2 space-y-1">
                   {detail.data.members.map((member) => (
                     <li key={member.id} className="flex items-center justify-between gap-3">
-                      <span className="truncate">{member.profile?.email || member.profile?.name}</span>
+                      <span className="truncate">
+                        {member.profile?.email || member.profile?.name}
+                      </span>
                       <span className="shrink-0 text-xs text-muted-foreground">{member.role}</span>
                     </li>
                   ))}

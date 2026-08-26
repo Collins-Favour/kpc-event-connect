@@ -49,8 +49,14 @@ function MembersPage() {
   const roleFn = useServerFn(updateMemberRole);
   const removeFn = useServerFn(removeMember);
 
-  const space = useQuery({ queryKey: ["space", spaceId], queryFn: () => spaceFn({ data: { spaceId } }) });
-  const members = useQuery({ queryKey: ["members", spaceId], queryFn: () => listFn({ data: { spaceId } }) });
+  const space = useQuery({
+    queryKey: ["space", spaceId],
+    queryFn: () => spaceFn({ data: { spaceId } }),
+  });
+  const members = useQuery({
+    queryKey: ["members", spaceId],
+    queryFn: () => listFn({ data: { spaceId } }),
+  });
   const isSuper = space.data?.role === "SPACE_SUPER_ADMIN";
 
   const [open, setOpen] = useState(false);
@@ -78,8 +84,7 @@ function MembersPage() {
       toast.success("Role updated");
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not update the role.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not update the role.")),
   });
 
   const remove = useMutation({
@@ -88,8 +93,7 @@ function MembersPage() {
       toast.success("Member removed");
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not remove the member.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not remove the member.")),
   });
 
   const revoke = useMutation({
@@ -120,7 +124,9 @@ function MembersPage() {
           {(members.data?.members ?? []).map((member) => (
             <div key={member.id} className="flex flex-wrap items-center gap-3 px-6 py-4">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{member.profile?.name || member.profile?.email}</p>
+                <p className="truncate font-medium">
+                  {member.profile?.name || member.profile?.email}
+                </p>
                 <p className="truncate text-xs text-muted-foreground">{member.profile?.email}</p>
               </div>
               <Badge variant={member.role === "SPACE_SUPER_ADMIN" ? "default" : "secondary"}>

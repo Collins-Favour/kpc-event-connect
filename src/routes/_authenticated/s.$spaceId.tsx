@@ -47,7 +47,8 @@ function SpaceLayout() {
   const navigate = useNavigate();
   const sectionLabel = nav.find(
     (item) =>
-      !("exact" in item && item.exact) && location.pathname.startsWith(item.to.replace("$spaceId", spaceId)),
+      !("exact" in item && item.exact) &&
+      location.pathname.startsWith(item.to.replace("$spaceId", spaceId)),
   )?.label;
 
   const spaceFn = useServerFn(getSpace);
@@ -106,9 +107,10 @@ function SpaceLayout() {
           <nav className="mt-4 flex gap-1 overflow-x-auto lg:mt-6 lg:flex-col lg:overflow-visible">
             {nav.map((item) => {
               const href = item.to.replace("$spaceId", spaceId);
-              const active = "exact" in item && item.exact
-                ? location.pathname === href || location.pathname === `${href}/`
-                : location.pathname.startsWith(href);
+              const active =
+                "exact" in item && item.exact
+                  ? location.pathname === href || location.pathname === `${href}/`
+                  : location.pathname.startsWith(href);
               return (
                 <Link
                   key={item.to}
@@ -164,7 +166,6 @@ function SpaceLayout() {
           <Outlet />
         </div>
       </main>
-
     </div>
   );
 }

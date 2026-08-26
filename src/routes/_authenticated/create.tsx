@@ -14,17 +14,33 @@ export const Route = createFileRoute("/_authenticated/create")({
   head: () => ({
     meta: [
       { title: "Create a space — Leepek" },
-      { name: "description", content: "Create a workspace for your events, registration desks and attendance data." },
+      {
+        name: "description",
+        content: "Create a workspace for your events, registration desks and attendance data.",
+      },
       { property: "og:title", content: "Create a space — Leepek" },
-      { property: "og:description", content: "Create a workspace for your events and registration desks." },
+      {
+        property: "og:description",
+        content: "Create a workspace for your events and registration desks.",
+      },
     ],
   }),
   component: CreateSpacePage,
 });
 
 const types = [
-  { value: "INDIVIDUAL", label: "Individual", icon: User, hint: "Just you, running your own events" },
-  { value: "ORGANIZATION", label: "Organization", icon: Building2, hint: "A company, school, church or NGO" },
+  {
+    value: "INDIVIDUAL",
+    label: "Individual",
+    icon: User,
+    hint: "Just you, running your own events",
+  },
+  {
+    value: "ORGANIZATION",
+    label: "Organization",
+    icon: Building2,
+    hint: "A company, school, church or NGO",
+  },
   { value: "TEAM", label: "Team", icon: Users, hint: "A group inside a larger organization" },
 ] as const;
 

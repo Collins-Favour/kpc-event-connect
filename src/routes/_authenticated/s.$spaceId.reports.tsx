@@ -21,9 +21,15 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/reports")({
   head: () => ({
     meta: [
       { title: "Reports — Leepek" },
-      { name: "description", content: "Attendance, desk, time and demographic reports with CSV export." },
+      {
+        name: "description",
+        content: "Attendance, desk, time and demographic reports with CSV export.",
+      },
       { property: "og:title", content: "Reports — Leepek" },
-      { property: "og:description", content: "Attendance, desk and demographic reports with export." },
+      {
+        property: "og:description",
+        content: "Attendance, desk and demographic reports with export.",
+      },
     ],
   }),
   component: ReportsPage,
@@ -45,7 +51,10 @@ function ReportsPage() {
   const overviewFn = useServerFn(getSpaceOverview);
   const eventsFn = useServerFn(listEvents);
 
-  const events = useQuery({ queryKey: ["events", spaceId], queryFn: () => eventsFn({ data: { spaceId } }) });
+  const events = useQuery({
+    queryKey: ["events", spaceId],
+    queryFn: () => eventsFn({ data: { spaceId } }),
+  });
   const [eventId, setEventId] = useState("all");
   const scope = eventId === "all" ? undefined : eventId;
 

@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/settings")({
   head: () => ({
     meta: [
       { title: "Space settings — Leepek" },
-      { name: "description", content: "Rename your space, set its timezone and update its description." },
+      {
+        name: "description",
+        content: "Rename your space, set its timezone and update its description.",
+      },
       { property: "og:title", content: "Space settings — Leepek" },
       { property: "og:description", content: "Rename your space and update its details." },
     ],
@@ -31,7 +34,10 @@ function SettingsPage() {
   const spaceFn = useServerFn(getSpace);
   const updateFn = useServerFn(updateSpace);
 
-  const space = useQuery({ queryKey: ["space", spaceId], queryFn: () => spaceFn({ data: { spaceId } }) });
+  const space = useQuery({
+    queryKey: ["space", spaceId],
+    queryFn: () => spaceFn({ data: { spaceId } }),
+  });
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [timezone, setTimezone] = useState("");
@@ -51,8 +57,7 @@ function SettingsPage() {
       queryClient.invalidateQueries({ queryKey: ["space", spaceId] });
       queryClient.invalidateQueries({ queryKey: ["my-spaces"] });
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not save the settings.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not save the settings.")),
   });
 
   const canEdit = space.data?.role === "SPACE_SUPER_ADMIN";
@@ -62,7 +67,9 @@ function SettingsPage() {
       <header>
         <h1 className="text-2xl">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {canEdit ? "Only space super admins can change these." : "Read-only — ask a super admin to make changes."}
+          {canEdit
+            ? "Only space super admins can change these."
+            : "Read-only — ask a super admin to make changes."}
         </p>
       </header>
 

@@ -69,9 +69,10 @@ function DeskPage() {
   const [values, setValues] = useState<Record<string, FieldValue>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [duplicate, setDuplicate] = useState<{ full_name: string; registration_number: string } | null>(
-    null,
-  );
+  const [duplicate, setDuplicate] = useState<{
+    full_name: string;
+    registration_number: string;
+  } | null>(null);
   const [done, setDone] = useState<{ registration_number: string; full_name: string } | null>(null);
   const [count, setCount] = useState(0);
 
@@ -91,7 +92,9 @@ function DeskPage() {
       <Centered>
         <h1 className="text-xl">This desk session is no longer valid</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {query.error instanceof Error ? query.error.message : "Ask your organiser for a new token."}
+          {query.error instanceof Error
+            ? query.error.message
+            : "Ask your organiser for a new token."}
         </p>
         <Button className="mt-6" onClick={() => navigate({ to: "/join" })}>
           Enter a new token
@@ -249,7 +252,11 @@ function DeskPage() {
                       )}
 
                       {field.field_type === "BOOLEAN" && (
-                        <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby={field.id}>
+                        <div
+                          className="grid grid-cols-2 gap-2"
+                          role="group"
+                          aria-labelledby={field.id}
+                        >
                           {["Yes", "No"].map((option) => (
                             <button
                               key={option}
@@ -280,7 +287,6 @@ function DeskPage() {
                           <span className="text-sm">Yes</span>
                         </label>
                       )}
-
 
                       {field.field_type === "RADIO" && (
                         <RadioGroup
@@ -352,8 +358,8 @@ function DeskPage() {
                   <div className="animate-fade rounded-lg border border-accent bg-accent/10 p-4 text-sm">
                     <p className="font-medium">Possible duplicate</p>
                     <p className="mt-1 text-muted-foreground">
-                      {duplicate.full_name} ({duplicate.registration_number}) already used this phone
-                      number at this event.
+                      {duplicate.full_name} ({duplicate.registration_number}) already used this
+                      phone number at this event.
                     </p>
                     <Button className="mt-3" size="sm" onClick={() => save(true)} disabled={busy}>
                       Register anyway

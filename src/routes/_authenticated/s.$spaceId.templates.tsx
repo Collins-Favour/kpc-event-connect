@@ -37,7 +37,10 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/templates")({
   head: () => ({
     meta: [
       { title: "Registration templates — Leepek" },
-      { name: "description", content: "Design the registration form for each event with custom fields." },
+      {
+        name: "description",
+        content: "Design the registration form for each event with custom fields.",
+      },
       { property: "og:title", content: "Registration templates — Leepek" },
       { property: "og:description", content: "Design custom registration forms for your events." },
     ],
@@ -84,7 +87,6 @@ const PRESETS = [
   },
 ];
 
-
 function TemplatesPage() {
   const { spaceId } = Route.useParams();
   const queryClient = useQueryClient();
@@ -94,7 +96,10 @@ function TemplatesPage() {
   const deleteFn = useServerFn(deleteTemplateField);
   const reorderFn = useServerFn(reorderTemplateFields);
 
-  const events = useQuery({ queryKey: ["events", spaceId], queryFn: () => eventsFn({ data: { spaceId } }) });
+  const events = useQuery({
+    queryKey: ["events", spaceId],
+    queryFn: () => eventsFn({ data: { spaceId } }),
+  });
   const [eventId, setEventId] = useState<string | undefined>();
   const activeEvent = eventId ?? events.data?.[0]?.id;
 
@@ -143,8 +148,7 @@ function TemplatesPage() {
       setOpen(false);
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not save the field.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not save the field.")),
   });
 
   const remove = useMutation({
@@ -153,8 +157,7 @@ function TemplatesPage() {
       toast.success("Field removed");
       invalidate();
     },
-    onError: (error: unknown) =>
-      toast.error(friendlyError(error, "Could not remove the field.")),
+    onError: (error: unknown) => toast.error(friendlyError(error, "Could not remove the field.")),
   });
 
   const reorder = useMutation({
@@ -246,7 +249,6 @@ function TemplatesPage() {
         </div>
       )}
 
-
       {!activeEvent && (
         <Card>
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
@@ -271,10 +273,20 @@ function TemplatesPage() {
                 </p>
               </div>
               <div className="flex items-center gap-1">
-                <Button size="icon" variant="ghost" onClick={() => move(index, -1)} aria-label="Move up">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => move(index, -1)}
+                  aria-label="Move up"
+                >
                   <ArrowUp className="size-4" />
                 </Button>
-                <Button size="icon" variant="ghost" onClick={() => move(index, 1)} aria-label="Move down">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => move(index, 1)}
+                  aria-label="Move down"
+                >
                   <ArrowDown className="size-4" />
                 </Button>
                 <Button
@@ -367,7 +379,6 @@ function TemplatesPage() {
                       {type.label}
                     </SelectItem>
                   ))}
-
                 </SelectContent>
               </Select>
             </div>

@@ -13,7 +13,10 @@ export const Route = createFileRoute("/_authenticated/spaces")({
   head: () => ({
     meta: [
       { title: "Your spaces — Leepek" },
-      { name: "description", content: "Switch between the event registration workspaces you belong to." },
+      {
+        name: "description",
+        content: "Switch between the event registration workspaces you belong to.",
+      },
       { property: "og:title", content: "Your spaces — Leepek" },
       { property: "og:description", content: "Switch between your event registration workspaces." },
     ],
@@ -69,8 +72,7 @@ function SpacesPage() {
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {spaces.isLoading &&
-            [0, 1].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
+          {spaces.isLoading && [0, 1].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
 
           {spaces.data?.map((space) => (
             <Link
