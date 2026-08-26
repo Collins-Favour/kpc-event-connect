@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
+import { Route as AuthenticatedPlatformRouteImport } from './routes/_authenticated/platform'
 import { Route as AuthenticatedSpacesRouteImport } from './routes/_authenticated/spaces'
 import { Route as DeskSessionIdRouteImport } from './routes/desk.$sessionId'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
@@ -49,6 +50,11 @@ const LoginRoute = LoginRouteImport.update({
 const AuthenticatedCreateRoute = AuthenticatedCreateRouteImport.update({
   id: '/create',
   path: '/create',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlatformRoute = AuthenticatedPlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSpacesRoute = AuthenticatedSpacesRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/create': typeof AuthenticatedCreateRoute
+  '/platform': typeof AuthenticatedPlatformRoute
   '/spaces': typeof AuthenticatedSpacesRoute
   '/desk/$sessionId': typeof DeskSessionIdRoute
   '/invite/$token': typeof InviteTokenRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/create': typeof AuthenticatedCreateRoute
+  '/platform': typeof AuthenticatedPlatformRoute
   '/spaces': typeof AuthenticatedSpacesRoute
   '/desk/$sessionId': typeof DeskSessionIdRoute
   '/invite/$token': typeof InviteTokenRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/login': typeof LoginRoute
   '/_authenticated/create': typeof AuthenticatedCreateRoute
+  '/_authenticated/platform': typeof AuthenticatedPlatformRoute
   '/_authenticated/spaces': typeof AuthenticatedSpacesRoute
   '/desk/$sessionId': typeof DeskSessionIdRoute
   '/invite/$token': typeof InviteTokenRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/create'
+    | '/platform'
     | '/spaces'
     | '/desk/$sessionId'
     | '/invite/$token'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/create'
+    | '/platform'
     | '/spaces'
     | '/desk/$sessionId'
     | '/invite/$token'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/login'
     | '/_authenticated/create'
+    | '/_authenticated/platform'
     | '/_authenticated/spaces'
     | '/desk/$sessionId'
     | '/invite/$token'
@@ -276,6 +288,13 @@ declare module '@tanstack/react-router' {
       path: '/create'
       fullPath: '/create'
       preLoaderRoute: typeof AuthenticatedCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/platform': {
+      id: '/_authenticated/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof AuthenticatedPlatformRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/spaces': {
@@ -394,12 +413,14 @@ const AuthenticatedSSpaceIdRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
+  AuthenticatedPlatformRoute: typeof AuthenticatedPlatformRoute
   AuthenticatedSpacesRoute: typeof AuthenticatedSpacesRoute
   AuthenticatedSSpaceIdRoute: typeof AuthenticatedSSpaceIdRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreateRoute: AuthenticatedCreateRoute,
+  AuthenticatedPlatformRoute: AuthenticatedPlatformRoute,
   AuthenticatedSpacesRoute: AuthenticatedSpacesRoute,
   AuthenticatedSSpaceIdRoute: AuthenticatedSSpaceIdRouteWithChildren,
 }

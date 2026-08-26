@@ -52,7 +52,11 @@ function PlatformPage() {
         </div>
         <div>
           <h1 className="text-2xl">Platform administration</h1>
-          <p className="text-sm text-muted-foreground">Every space on the platform.</p>
+          <p className="text-sm text-muted-foreground">
+            {spaces.data
+              ? `${spaces.data.totals.spaces} spaces · ${spaces.data.totals.users} users · ${spaces.data.totals.registrations} registrations`
+              : "Every space on the platform."}
+          </p>
         </div>
       </header>
 
@@ -65,7 +69,7 @@ function PlatformPage() {
             </CardContent>
           </Card>
         )}
-        {(spaces.data ?? []).map((space) => (
+        {(spaces.data?.spaces ?? []).map((space) => (
           <Card key={space.id} className="animate-rise">
             <CardContent className="flex flex-wrap items-center gap-3 py-4">
               <div className="min-w-0 flex-1">
