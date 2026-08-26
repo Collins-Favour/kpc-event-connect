@@ -15,7 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SetupRouteImport } from './routes/setup'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDeskRouteImport } from './routes/_authenticated/desk'
-import { Route as AuthenticatedDeskRegisterRouteImport } from './routes/_authenticated/desk.register'
+import { Route as AuthenticatedRegisterRouteImport } from './routes/_authenticated/register'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,28 +46,27 @@ const AuthenticatedDeskRoute = AuthenticatedDeskRouteImport.update({
   path: '/desk',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDeskRegisterRoute =
-  AuthenticatedDeskRegisterRouteImport.update({
-    id: '/register',
-    path: '/register',
-    getParentRoute: () => AuthenticatedDeskRoute,
-  } as any)
+const AuthenticatedRegisterRoute = AuthenticatedRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/setup': typeof SetupRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/desk': typeof AuthenticatedDeskRouteWithChildren
-  '/desk/register': typeof AuthenticatedDeskRegisterRoute
+  '/desk': typeof AuthenticatedDeskRoute
+  '/register': typeof AuthenticatedRegisterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/setup': typeof SetupRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/desk': typeof AuthenticatedDeskRouteWithChildren
-  '/desk/register': typeof AuthenticatedDeskRegisterRoute
+  '/desk': typeof AuthenticatedDeskRoute
+  '/register': typeof AuthenticatedRegisterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -76,14 +75,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/setup': typeof SetupRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/desk': typeof AuthenticatedDeskRouteWithChildren
-  '/_authenticated/desk/register': typeof AuthenticatedDeskRegisterRoute
+  '/_authenticated/desk': typeof AuthenticatedDeskRoute
+  '/_authenticated/register': typeof AuthenticatedRegisterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/setup' | '/admin' | '/desk' | '/desk/register'
+  fullPaths: '/' | '/login' | '/setup' | '/admin' | '/desk' | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/setup' | '/admin' | '/desk' | '/desk/register'
+  to: '/' | '/login' | '/setup' | '/admin' | '/desk' | '/register'
   id:
     | '__root__'
     | '/'
@@ -92,7 +91,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/_authenticated/admin'
     | '/_authenticated/desk'
-    | '/_authenticated/desk/register'
+    | '/_authenticated/register'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -146,35 +145,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDeskRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/desk/register': {
-      id: '/_authenticated/desk/register'
+    '/_authenticated/register': {
+      id: '/_authenticated/register'
       path: '/register'
-      fullPath: '/desk/register'
-      preLoaderRoute: typeof AuthenticatedDeskRegisterRouteImport
-      parentRoute: typeof AuthenticatedDeskRoute
+      fullPath: '/register'
+      preLoaderRoute: typeof AuthenticatedRegisterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-interface AuthenticatedDeskRouteChildren {
-  AuthenticatedDeskRegisterRoute: typeof AuthenticatedDeskRegisterRoute
-}
-
-const AuthenticatedDeskRouteChildren: AuthenticatedDeskRouteChildren = {
-  AuthenticatedDeskRegisterRoute: AuthenticatedDeskRegisterRoute,
-}
-
-const AuthenticatedDeskRouteWithChildren =
-  AuthenticatedDeskRoute._addFileChildren(AuthenticatedDeskRouteChildren)
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedDeskRoute: typeof AuthenticatedDeskRouteWithChildren
+  AuthenticatedDeskRoute: typeof AuthenticatedDeskRoute
+  AuthenticatedRegisterRoute: typeof AuthenticatedRegisterRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedDeskRoute: AuthenticatedDeskRouteWithChildren,
+  AuthenticatedDeskRoute: AuthenticatedDeskRoute,
+  AuthenticatedRegisterRoute: AuthenticatedRegisterRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
