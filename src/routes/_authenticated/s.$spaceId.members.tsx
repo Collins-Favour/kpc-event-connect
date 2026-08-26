@@ -22,16 +22,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/error-message";
 import { Copy, Loader2, UserPlus } from "lucide-react";
+import { PageNav } from "@/components/page-nav";
 
 export const Route = createFileRoute("/_authenticated/s/$spaceId/members")({
   head: () => ({
@@ -44,8 +38,6 @@ export const Route = createFileRoute("/_authenticated/s/$spaceId/members")({
   }),
   component: MembersPage,
 });
-
-type Role = "SPACE_ADMIN" | "SPACE_SUPER_ADMIN";
 
 function MembersPage() {
   const { spaceId } = Route.useParams();
@@ -63,13 +55,12 @@ function MembersPage() {
 
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<Role>("SPACE_ADMIN");
   const [link, setLink] = useState<string | null>(null);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["members", spaceId] });
 
   const invite = useMutation({
-    mutationFn: () => inviteFn({ data: { spaceId, email, role } }),
+    mutationFn: () => inviteFn({ data: { spaceId, email, role: "SPACE_ADMIN" as const } }),
     onSuccess: (result) => {
       setLink(`${window.location.origin}/invite/${result.token}`);
       setOpen(false);
@@ -81,7 +72,8 @@ function MembersPage() {
   });
 
   const changeRole = useMutation({
-    mutationFn: (input: { memberId: string; role: Role }) => roleFn({ data: { spaceId, ...input } }),
+    mutationFn: (input: { memberId: string }) =>
+      roleFn({ data: { spaceId, ...input, role: "SPACE_ADMIN" as const } }),
     onSuccess: () => {
       toast.success("Role updated");
       invalidate();
@@ -107,6 +99,7 @@ function MembersPage() {
 
   return (
     <div className="space-y-8">
+      <PageNav className="-ml-2 lg:hidden" />
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl">Members</h1>
@@ -135,18 +128,15 @@ function MembersPage() {
               </Badge>
               {isSuper && (
                 <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      changeRole.mutate({
-                        memberId: member.id,
-                        role: member.role === "SPACE_SUPER_ADMIN" ? "SPACE_ADMIN" : "SPACE_SUPER_ADMIN",
-                      })
-                    }
-                  >
-                    {member.role === "SPACE_SUPER_ADMIN" ? "Make admin" : "Promote"}
-                  </Button>
+                  {member.role === "SPACE_SUPER_ADMIN" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => changeRole.mutate({ memberId: member.id })}
+                    >
+                      Make admin
+                    </Button>
+                  )}
                   <Button size="sm" variant="ghost" onClick={() => remove.mutate(member.id)}>
                     Remove
                   </Button>
@@ -196,18 +186,9 @@ function MembersPage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <Label>Role</Label>
-              <Select value={role} onValueChange={(value) => setRole(value as Role)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SPACE_ADMIN">Space admin</SelectItem>
-                  <SelectItem value="SPACE_SUPER_ADMIN">Space super admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              They join as a space admin. Only the space owner keeps super admin rights.
+            </p>
           </div>
           <DialogFooter>
             <Button onClick={() => invite.mutate()} disabled={invite.isPending}>
