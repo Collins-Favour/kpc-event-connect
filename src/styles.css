@@ -236,7 +236,7 @@
 
 @keyframes grid-pan {
   from { background-position: 0 0; }
-  to { background-position: 60px 60px; }
+  to { background-position: 72px 72px; }
 }
 
 @utility ambient-drift-a {
