@@ -42,9 +42,9 @@ function deskCodeFromName(name: string) {
 export const Route = createFileRoute("/_authenticated/s/$spaceId/desks")({
   head: () => ({
     meta: [
-      { title: "Registration desks — Registry" },
+      { title: "Registration desks — Leepek" },
       { name: "description", content: "Create registration desks and issue secure, expiring desk tokens." },
-      { property: "og:title", content: "Registration desks — Registry" },
+      { property: "og:title", content: "Registration desks — Leepek" },
       { property: "og:description", content: "Create desks and issue secure desk tokens." },
     ],
   }),

@@ -16,9 +16,9 @@ import { Loader2 } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/s/$spaceId/settings")({
   head: () => ({
     meta: [
-      { title: "Space settings — Registry" },
+      { title: "Space settings — Leepek" },
       { name: "description", content: "Rename your space, set its timezone and update its description." },
-      { property: "og:title", content: "Space settings — Registry" },
+      { property: "og:title", content: "Space settings — Leepek" },
       { property: "og:description", content: "Rename your space and update its details." },
     ],
   }),

@@ -36,9 +36,9 @@ import { Copy, Loader2, UserPlus } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/s/$spaceId/members")({
   head: () => ({
     meta: [
-      { title: "Members — Registry" },
+      { title: "Members — Leepek" },
       { name: "description", content: "Invite administrators and manage roles inside your space." },
-      { property: "og:title", content: "Members — Registry" },
+      { property: "og:title", content: "Members — Leepek" },
       { property: "og:description", content: "Invite administrators and manage space roles." },
     ],
   }),

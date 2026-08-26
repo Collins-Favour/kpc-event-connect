@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/s/$spaceId/")({
   head: () => ({
     meta: [
-      { title: "Space overview — Registry" },
+      { title: "Space overview — Leepek" },
       { name: "description", content: "Live registration totals, desk activity and recent attendees." },
-      { property: "og:title", content: "Space overview — Registry" },
+      { property: "og:title", content: "Space overview — Leepek" },
       { property: "og:description", content: "Live registration totals and desk activity." },
     ],
   }),

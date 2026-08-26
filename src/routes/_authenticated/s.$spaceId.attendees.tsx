@@ -28,9 +28,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/s/$spaceId/attendees")({
   head: () => ({
     meta: [
-      { title: "Attendees — Registry" },
+      { title: "Attendees — Leepek" },
       { name: "description", content: "Search and filter everyone registered across your events and desks." },
-      { property: "og:title", content: "Attendees — Registry" },
+      { property: "og:title", content: "Attendees — Leepek" },
       { property: "og:description", content: "Search and filter your event registrations." },
     ],
   }),

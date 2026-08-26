@@ -6,13 +6,13 @@ import { ArrowRight, KeyRound, LayoutGrid, ShieldCheck, Timer } from "lucide-rea
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Registry — Event Registration & Attendance Platform" },
+      { title: "Leepek — Event Registration & Attendance Platform" },
       {
         name: "description",
         content:
           "One workspace for events, registration desks and attendance data — for organizations, teams, schools, conferences and communities.",
       },
-      { property: "og:title", content: "Registry — Event Registration & Attendance Platform" },
+      { property: "og:title", content: "Leepek — Event Registration & Attendance Platform" },
       {
         property: "og:description",
         content: "Run registration desks, define your own forms and keep every workspace isolated.",
@@ -28,7 +28,7 @@ function Index() {
       <AmbientBackground />
       <div className="relative z-10 mx-auto w-full max-w-6xl">
         <nav className="animate-fade flex items-center justify-between">
-          <span className="font-display text-2xl font-bold tracking-tight text-primary">Registry</span>
+          <span className="font-display text-2xl font-bold tracking-tight text-primary">Leepek</span>
           <Link
             to="/login"
             className="text-sm font-semibold text-success transition-colors duration-200 hover:text-primary"
@@ -107,29 +107,21 @@ function Index() {
           </article>
 
           <article className="animate-rise stagger-4 hover-lift col-span-1 rounded-3xl border-2 border-dashed border-accent/40 bg-accent/5 p-8 transition-colors duration-300 hover:bg-accent/10 md:col-span-4">
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
-              <div>
-                <ShieldCheck className="size-7 text-accent" />
-                <h2 className="mt-4 font-display text-2xl font-semibold text-primary">
-                  Isolated by design
-                </h2>
-                <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-                  Every request is checked against your membership on the server. Workspaces never
-                  see each other.
-                </p>
-              </div>
-              <div className="flex -space-x-3">
-                <span className="size-10 rounded-full border-2 border-background bg-primary" />
-                <span className="size-10 rounded-full border-2 border-background bg-success" />
-                <span className="size-10 rounded-full border-2 border-background bg-accent" />
-              </div>
-            </div>
+            <ShieldCheck className="size-7 text-accent" />
+            <h2 className="mt-4 font-display text-2xl font-semibold text-primary">
+              Secure by default
+            </h2>
+            <p className="mt-3 max-w-md text-sm text-muted-foreground">
+              Every request is checked against your membership on the server, so each workspace
+              stays private to its own team.
+            </p>
           </article>
+
         </section>
 
         <footer className="mt-16 text-center">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
-            Registry — working name for this platform
+            Leepek
           </p>
         </footer>
       </div>

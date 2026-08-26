@@ -14,12 +14,12 @@ import { Loader2 } from "lucide-react";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Sign in — Registry" },
+      { title: "Sign in — Leepek" },
       {
         name: "description",
         content: "Sign in to manage your event registration workspace, desks and attendance data.",
       },
-      { property: "og:title", content: "Sign in — Registry" },
+      { property: "og:title", content: "Sign in — Leepek" },
       {
         property: "og:description",
         content: "Access your event registration workspace and attendance data.",
@@ -90,7 +90,7 @@ function LoginPage() {
       <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link to="/" className="text-sm font-semibold tracking-tight">
-            Registry
+            Leepek
           </Link>
           <h1 className="mt-6 text-2xl">
             {mode === "signin" ? "Sign in" : "Create your account"}

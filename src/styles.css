@@ -236,7 +236,7 @@
 
 @keyframes grid-pan {
   from { background-position: 0 0; }
-  to { background-position: 60px 60px; }
+  to { background-position: 72px 72px; }
 }
 
 @utility ambient-drift-a {
@@ -249,10 +249,10 @@
 
 @utility ambient-grid {
   background-image:
-    linear-gradient(to right, color-mix(in oklab, var(--primary) 16%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 16%, transparent) 1px, transparent 1px);
-  background-size: 60px 60px;
-  animation: grid-pan 30s linear infinite;
+    linear-gradient(to right, color-mix(in oklab, var(--primary) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--primary) 6%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  animation: grid-pan 90s linear infinite;
 }
 
 @utility stagger-* {

@@ -36,9 +36,9 @@ import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/s/$spaceId/templates")({
   head: () => ({
     meta: [
-      { title: "Registration templates — Registry" },
+      { title: "Registration templates — Leepek" },
       { name: "description", content: "Design the registration form for each event with custom fields." },
-      { property: "og:title", content: "Registration templates — Registry" },
+      { property: "og:title", content: "Registration templates — Leepek" },
       { property: "og:description", content: "Design custom registration forms for your events." },
     ],
   }),
