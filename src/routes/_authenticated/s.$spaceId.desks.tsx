@@ -27,6 +27,18 @@ import { toast } from "sonner";
 import { friendlyError } from "@/lib/error-message";
 import { Copy, KeyRound, Loader2, Plus } from "lucide-react";
 
+
+/** Falls back to a slug-style code derived from the desk name. */
+function deskCodeFromName(name: string) {
+  const base = name
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 20);
+  return base.length >= 2 ? base : "DESK-01";
+}
+
 export const Route = createFileRoute("/_authenticated/s/$spaceId/desks")({
   head: () => ({
     meta: [
@@ -243,7 +255,7 @@ function DesksPage() {
               <Label htmlFor="desk-code">Code</Label>
               <Input
                 id="desk-code"
-                placeholder="DESK-01"
+                placeholder="Optional — e.g. DESK-01"
                 value={form.code}
                 onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
               />
