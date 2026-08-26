@@ -370,15 +370,29 @@ export const acceptInvitation = createServerFn({ method: "POST" })
 
 /* ------------------------------- platform -------------------------------- */
 
+/** Reads the caller's platform status from their own token, never from input. */
+async function requirePlatformAdmin(
+  supabase: { from: (table: "platform_admins") => never } | never,
+  userId: string,
+) {
+  const { data } = await (supabase as never as {
+    from: (t: string) => {
+      select: (c: string) => {
+        eq: (a: string, b: string) => { maybeSingle: () => Promise<{ data: unknown }> };
+      };
+    };
+  })
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) throw new HttpError("Platform administrators only.", 403);
+}
+
 export const listAllSpaces = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isAdmin } = await context.supabase
-      .from("platform_admins")
-      .select("user_id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (!isAdmin) throw new HttpError("Platform administrators only.", 403);
+    await requirePlatformAdmin(context.supabase as never, context.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: spaces }, { count: registrations }, { count: users }] = await Promise.all([
@@ -396,18 +410,202 @@ export const listAllSpaces = createServerFn({ method: "GET" })
     };
   });
 
+export const getPlatformOverview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requirePlatformAdmin(context.supabase as never, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const since = new Date(Date.now() - 29 * 24 * 60 * 60 * 1000).toISOString();
+    const [
+      { data: spaces },
+      { count: users },
+      { count: events },
+      { count: desks },
+      { count: registrations },
+      { data: recentRegistrations },
+      { data: audit },
+    ] = await Promise.all([
+      supabaseAdmin
+        .from("spaces")
+        .select("id, name, slug, space_type, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(200),
+      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("events").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("registration_desks").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("registrations").select("id", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("registrations")
+        .select("space_id, registered_at")
+        .gte("registered_at", since)
+        .limit(5000),
+      supabaseAdmin
+        .from("audit_logs")
+        .select("id, action, description, created_at, space_id")
+        .order("created_at", { ascending: false })
+        .limit(25),
+    ]);
+
+    const perDay = new Map<string, number>();
+    const perSpace = new Map<string, number>();
+    for (const row of recentRegistrations ?? []) {
+      const day = row.registered_at.slice(0, 10);
+      perDay.set(day, (perDay.get(day) ?? 0) + 1);
+      perSpace.set(row.space_id, (perSpace.get(row.space_id) ?? 0) + 1);
+    }
+
+    return {
+      totals: {
+        spaces: (spaces ?? []).length,
+        users: users ?? 0,
+        events: events ?? 0,
+        desks: desks ?? 0,
+        registrations: registrations ?? 0,
+        last30: (recentRegistrations ?? []).length,
+      },
+      trend: [...perDay.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, count]) => ({ day, count })),
+      spaces: (spaces ?? []).map((space) => ({
+        ...space,
+        registrations_last30: perSpace.get(space.id) ?? 0,
+      })),
+      audit: audit ?? [],
+    };
+  });
+
+export const getSpaceDetailForPlatform = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => spaceIdSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await requirePlatformAdmin(context.supabase as never, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [{ data: space }, { data: events }, { count: desks }, { count: registrations }, { data: members }] =
+      await Promise.all([
+        supabaseAdmin.from("spaces").select("*").eq("id", data.spaceId).maybeSingle(),
+        supabaseAdmin
+          .from("events")
+          .select("id, name, status, start_date, registration_counter")
+          .eq("space_id", data.spaceId)
+          .order("created_at", { ascending: false })
+          .limit(50),
+        supabaseAdmin
+          .from("registration_desks")
+          .select("id", { count: "exact", head: true })
+          .eq("space_id", data.spaceId),
+        supabaseAdmin
+          .from("registrations")
+          .select("id", { count: "exact", head: true })
+          .eq("space_id", data.spaceId),
+        supabaseAdmin
+          .from("space_members")
+          .select("id, user_id, role, status")
+          .eq("space_id", data.spaceId),
+      ]);
+    if (!space) throw new HttpError("Space not found.", 404);
+
+    const ids = (members ?? []).map((m) => m.user_id);
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, name, email").in("id", ids)
+      : { data: [] as { id: string; name: string; email: string | null }[] };
+
+    return {
+      space,
+      events: events ?? [],
+      counts: { desks: desks ?? 0, registrations: registrations ?? 0, members: (members ?? []).length },
+      members: (members ?? []).map((member) => ({
+        ...member,
+        profile: (profiles ?? []).find((p) => p.id === member.user_id) ?? null,
+      })),
+    };
+  });
+
+export const listPlatformAdmins = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requirePlatformAdmin(context.supabase as never, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: admins } = await supabaseAdmin
+      .from("platform_admins")
+      .select("user_id, created_at")
+      .order("created_at");
+    const ids = (admins ?? []).map((a) => a.user_id);
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, name, email").in("id", ids)
+      : { data: [] as { id: string; name: string; email: string | null }[] };
+    return (admins ?? []).map((admin) => ({
+      ...admin,
+      profile: (profiles ?? []).find((p) => p.id === admin.user_id) ?? null,
+      isSelf: admin.user_id === context.userId,
+    }));
+  });
+
+export const addPlatformAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ email: z.string().trim().email("Enter a valid email").max(255) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requirePlatformAdmin(context.supabase as never, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const email = data.email.toLowerCase();
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("id, email")
+      .ilike("email", email)
+      .maybeSingle();
+    if (!profile) {
+      throw new HttpError("No account uses that email yet. Ask them to sign in once first.", 404);
+    }
+    const { error } = await supabaseAdmin
+      .from("platform_admins")
+      .upsert({ user_id: profile.id }, { onConflict: "user_id" });
+    if (error) throw new HttpError("Could not add that platform administrator.", 500);
+
+    await writeAudit(supabaseAdmin, {
+      space_id: null,
+      actor_id: context.userId,
+      action: "PLATFORM_ADMIN_ADDED",
+      entity_type: "platform_admin",
+      entity_id: profile.id,
+      description: `Granted platform administration to ${email}`,
+    });
+    return { ok: true };
+  });
+
+export const removePlatformAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await requirePlatformAdmin(context.supabase as never, context.userId);
+    if (data.userId === context.userId) {
+      throw new HttpError("You cannot remove your own platform access.", 403);
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count } = await supabaseAdmin
+      .from("platform_admins")
+      .select("user_id", { count: "exact", head: true });
+    if ((count ?? 0) <= 1) throw new HttpError("The platform must keep one administrator.", 409);
+
+    await supabaseAdmin.from("platform_admins").delete().eq("user_id", data.userId);
+    await writeAudit(supabaseAdmin, {
+      space_id: null,
+      actor_id: context.userId,
+      action: "PLATFORM_ADMIN_REMOVED",
+      entity_type: "platform_admin",
+      entity_id: data.userId,
+    });
+    return { ok: true };
+  });
+
 export const setSpaceStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     spaceIdSchema.extend({ status: z.enum(["ACTIVE", "SUSPENDED", "ARCHIVED"]) }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase
-      .from("platform_admins")
-      .select("user_id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (!isAdmin) throw new HttpError("Platform administrators only.", 403);
+    await requirePlatformAdmin(context.supabase as never, context.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("spaces").update({ status: data.status }).eq("id", data.spaceId);
@@ -421,3 +619,4 @@ export const setSpaceStatus = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
